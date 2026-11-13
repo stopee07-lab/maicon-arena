@@ -1,0 +1,104 @@
+{
+  "source": "output/MAICON_모바일_자료_2026-11-11/assets/d1-p13-f2.jpg",
+  "source_sha256": "90518822e77e4fedc8614927fe4c467fd341f42befffea7b3ac094536120b6f9",
+  "source_dimensions": [
+    1500,
+    988
+  ],
+  "official_reference": "1차_교육자료_2026MAICON.pdf page 13 example photo tiles",
+  "limitation": "Official example images; source says actual competition images may differ. No real robot camera dataset claimed.",
+  "caption_removed": true,
+  "coordinates": "left,top,right,bottom in source pixels; right/bottom exclusive",
+  "textures": [
+    {
+      "class": "ammo_box",
+      "file": "ammo_box.png",
+      "crop": [
+        30,
+        21,
+        496,
+        410
+      ],
+      "dimensions": [
+        466,
+        389
+      ],
+      "sha256": "b0f5be79e5d8bb69fd4740e3f3becff5abe03300f54df1b391aae4c3de457fca"
+    },
+    {
+      "class": "drum",
+      "file": "drum.png",
+      "crop": [
+        523,
+        21,
+        988,
+        410
+      ],
+      "dimensions": [
+        465,
+        389
+      ],
+      "sha256": "5dd7b94e75247dbc8206ff9c8ccab2738fe115132ebcb5216894f505f8720862"
+    },
+    {
+      "class": "mortar",
+      "file": "mortar.png",
+      "crop": [
+        1016,
+        21,
+        1482,
+        410
+      ],
+      "dimensions": [
+        466,
+        389
+      ],
+      "sha256": "6764c6a246cbd3b3541fc67cf53be3764c183301a8b4efb0c1f1018363ab8fc5"
+    },
+    {
+      "class": "military_truck",
+      "file": "military_truck.png",
+      "crop": [
+        30,
+        506,
+        497,
+        890
+      ],
+      "dimensions": [
+        467,
+        384
+      ],
+      "sha256": "5c95919d1eaff61a9159d721730568aa9355dee9514d74cd75fe10aad805195c"
+    },
+    {
+      "class": "tank",
+      "file": "tank.png",
+      "crop": [
+        525,
+        506,
+        989,
+        889
+      ],
+      "dimensions": [
+        464,
+        383
+      ],
+      "sha256": "66fabf3c0524742ec4072ce5048813c89a16c9d90f6ef0aa8c3c380070bef526"
+    },
+    {
+      "class": "missile",
+      "file": "missile.png",
+      "crop": [
+        1020,
+        506,
+        1482,
+        889
+      ],
+      "dimensions": [
+        462,
+        383
+      ],
+      "sha256": "b93bb26c77e30a52a0e5c34584238032c742c248af5c0851a32b152306bdf5f2"
+    }
+  ]
+}

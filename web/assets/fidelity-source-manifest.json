@@ -1,0 +1,93 @@
+[
+  {
+    "file": "facilities/OUTPOST.png",
+    "source": "output/MAICON_모바일_자료_2026-11-11/assets/d1-p12-f2.jpg",
+    "source_sha256": "172b55073e05a0f1185619335e7fc33ea3f1f6083bf8c9627d66bc6ecf55ee1b",
+    "crop": [
+      20,
+      19,
+      478,
+      477
+    ],
+    "sha256": "32f24669fbf4538f1e94f657e6fba0426f79cb8386121093d7b98e0a93be5428",
+    "official": "PDF1 p12"
+  },
+  {
+    "file": "facilities/RADAR.png",
+    "source": "output/MAICON_모바일_자료_2026-11-11/assets/d1-p12-f2.jpg",
+    "source_sha256": "172b55073e05a0f1185619335e7fc33ea3f1f6083bf8c9627d66bc6ecf55ee1b",
+    "crop": [
+      504,
+      19,
+      962,
+      477
+    ],
+    "sha256": "a768c2cf60f6cf3e03dd62d0300b4ab710926b6b3625dd1a25b00f1b280148a3",
+    "official": "PDF1 p12"
+  },
+  {
+    "file": "facilities/COMMS.png",
+    "source": "output/MAICON_모바일_자료_2026-11-11/assets/d1-p12-f2.jpg",
+    "source_sha256": "172b55073e05a0f1185619335e7fc33ea3f1f6083bf8c9627d66bc6ecf55ee1b",
+    "crop": [
+      991,
+      19,
+      1449,
+      477
+    ],
+    "sha256": "5891f98e6d690863d63525c2fbb0c785c3a5e3b6a945907ab3d84de93879d506",
+    "official": "PDF1 p12"
+  },
+  {
+    "file": "decor/tree.png",
+    "source": "output/MAICON_모바일_자료_2026-11-11/assets/d1-p25-f3.jpg",
+    "source_sha256": "dfd1353a8c1476a081ab1964703ab977f3995517bfa98433bf00cdc7e48fbb8f",
+    "crop": [
+      0,
+      158,
+      404,
+      578
+    ],
+    "sha256": "37262a306d45ddd0e6d4f8c8f892f33e4a0e0fe07afa940555baa3e5dfa53a51",
+    "official": "PDF1 p25"
+  },
+  {
+    "file": "decor/wall.png",
+    "source": "output/MAICON_모바일_자료_2026-11-11/assets/d1-p25-f3.jpg",
+    "source_sha256": "dfd1353a8c1476a081ab1964703ab977f3995517bfa98433bf00cdc7e48fbb8f",
+    "crop": [
+      449,
+      158,
+      870,
+      578
+    ],
+    "sha256": "51388648e71b5c6bf20a12d34f8d1125076e7d41e58b324a1ce6d4a98212a086",
+    "official": "PDF1 p25"
+  },
+  {
+    "file": "decor/trench.png",
+    "source": "output/MAICON_모바일_자료_2026-11-11/assets/d1-p25-f3.jpg",
+    "source_sha256": "dfd1353a8c1476a081ab1964703ab977f3995517bfa98433bf00cdc7e48fbb8f",
+    "crop": [
+      920,
+      158,
+      1343,
+      578
+    ],
+    "sha256": "8e200b5bc7a05e1ded62b5607b2dc8450700c0f35fe0b55297cd8e7e502cc9e9",
+    "official": "PDF1 p25"
+  },
+  {
+    "file": "decor/ruins.png",
+    "source": "output/MAICON_모바일_자료_2026-11-11/assets/d1-p25-f3.jpg",
+    "source_sha256": "dfd1353a8c1476a081ab1964703ab977f3995517bfa98433bf00cdc7e48fbb8f",
+    "crop": [
+      1385,
+      158,
+      1801,
+      578
+    ],
+    "sha256": "fc320d095f4c5072b93c2b46d8a512c3837185f68ab97e235d380a7751f2aab1",
+    "official": "PDF1 p25"
+  }
+]

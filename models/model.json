@@ -1,0 +1,198 @@
+{
+  "class_schema_sha256": "20235f7341d088009fd5ca172fe2ada404e57fb70e83acb4dc20d2d8911bed99",
+  "classes": [
+    "military_truck",
+    "mortar",
+    "tank",
+    "missile",
+    "ammo_box",
+    "drum"
+  ],
+  "created_at": 1794605820.770277,
+  "dataset_id": "dataset-20261114-063204-4155ccf9",
+  "dataset_sha256": "a5a16100adc4fc6648f6857a6f085edee0d6ea5d804cdfab5b3092e8da7f715c",
+  "elapsed_seconds": 295.9210469722748,
+  "evaluation_jobs": [
+    "job-20261114-063204-897617ab"
+  ],
+  "id": "model-20261114-063700-54403a7a",
+  "metrics": {
+    "test": {
+      "fitness": 0.6979482568249682,
+      "metrics/mAP50(B)": 0.8282746935004989,
+      "metrics/mAP50-95(B)": 0.6979482568249682,
+      "metrics/precision(B)": 0.8899153805456467,
+      "metrics/recall(B)": 0.728143794664189
+    },
+    "validation": {
+      "fitness": 0.7242423360918149,
+      "metrics/mAP50(B)": 0.8604646843962099,
+      "metrics/mAP50-95(B)": 0.7242423360918149,
+      "metrics/precision(B)": 0.9213303229908351,
+      "metrics/recall(B)": 0.7430818732955832
+    }
+  },
+  "name": "추가 학습 · 예시 사진 6장 · 시야각·거리·조명·약한 흐림 · 11/14 06:37",
+  "parent_model_id": "model-20261113-140244-ce81f982",
+  "per_class": {
+    "test": [
+      {
+        "class_id": 0,
+        "instances": 90,
+        "map50": 0.8414668980563185,
+        "map50_95": 0.7245598556178006,
+        "name": "military_truck",
+        "precision": 0.897256790795523,
+        "recall": 0.7762837298859875
+      },
+      {
+        "class_id": 1,
+        "instances": 96,
+        "map50": 0.7905407010726727,
+        "map50_95": 0.6672226378518837,
+        "name": "mortar",
+        "precision": 0.8784577716484193,
+        "recall": 0.6666666666666666
+      },
+      {
+        "class_id": 2,
+        "instances": 117,
+        "map50": 0.876590306581976,
+        "map50_95": 0.764896272368677,
+        "name": "tank",
+        "precision": 0.844802161364595,
+        "recall": 0.7909391225547978
+      },
+      {
+        "class_id": 3,
+        "instances": 105,
+        "map50": 0.8070544387138263,
+        "map50_95": 0.67329579328792,
+        "name": "missile",
+        "precision": 0.8830550169452669,
+        "recall": 0.6571428571428571
+      },
+      {
+        "class_id": 4,
+        "instances": 92,
+        "map50": 0.801747435586786,
+        "map50_95": 0.686326782137728,
+        "name": "ammo_box",
+        "precision": 0.8859301995034458,
+        "recall": 0.6956521739130435
+      },
+      {
+        "class_id": 5,
+        "instances": 101,
+        "map50": 0.852248380991414,
+        "map50_95": 0.6713881996858,
+        "name": "drum",
+        "precision": 0.9499903430166301,
+        "recall": 0.7821782178217822
+      }
+    ],
+    "validation": [
+      {
+        "class_id": 0,
+        "instances": 94,
+        "map50": 0.8575808792002685,
+        "map50_95": 0.7293493168137102,
+        "name": "military_truck",
+        "precision": 0.9617644297329887,
+        "recall": 0.7340425531914894
+      },
+      {
+        "class_id": 1,
+        "instances": 93,
+        "map50": 0.882607483841785,
+        "map50_95": 0.7587438552524353,
+        "name": "mortar",
+        "precision": 0.9231037423249345,
+        "recall": 0.7634408602150538
+      },
+      {
+        "class_id": 2,
+        "instances": 88,
+        "map50": 0.8058180579513039,
+        "map50_95": 0.6674028133558865,
+        "name": "tank",
+        "precision": 0.8646158850319898,
+        "recall": 0.6590909090909091
+      },
+      {
+        "class_id": 3,
+        "instances": 89,
+        "map50": 0.8531345985740032,
+        "map50_95": 0.6997832192377635,
+        "name": "missile",
+        "precision": 0.9414663988670877,
+        "recall": 0.7229223131583589
+      },
+      {
+        "class_id": 4,
+        "instances": 88,
+        "map50": 0.8674450817089739,
+        "map50_95": 0.7471643328463251,
+        "name": "ammo_box",
+        "precision": 0.9165847987871032,
+        "recall": 0.7492073700751354
+      },
+      {
+        "class_id": 5,
+        "instances": 94,
+        "map50": 0.8962020051009247,
+        "map50_95": 0.7430104790447698,
+        "name": "drum",
+        "precision": 0.920446683200906,
+        "recall": 0.8297872340425532
+      }
+    ]
+  },
+  "quality": {
+    "message": "Measured on held-out dataset; real-world transfer is not validated",
+    "real_world_validated": false,
+    "status": "measured",
+    "synthetic_only": true,
+    "worker_assessment": "synthetic_test_only"
+  },
+  "runtime": {
+    "device": "mps",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.5",
+    "torch": "2.15.0",
+    "ultralytics": "8.4.210"
+  },
+  "settings": {
+    "batch": 8,
+    "device": "mps",
+    "epochs": 15,
+    "imgsz": 640,
+    "model": "model:model-20261113-140244-ce81f982",
+    "source": {
+      "kind": "registered",
+      "model_id": "model-20261113-140244-ce81f982",
+      "name": "추가 학습 · M3 추가 학습 · 사선·작은 사진·팬틸트 · 위치별 종류 무작위 · 11/13 14:02",
+      "weights_sha256": "132fd62dc6426925576ae6aab2db132aaf2cd70ad148971ef4402805ceebe3c2"
+    }
+  },
+  "source": "real_training_worker",
+  "source_audit": {
+    "evaluation_domain": "shared or unverified source images; not novel-image validation",
+    "independent_source_test": false,
+    "missing_source_identity": 720,
+    "shared_source_groups": [],
+    "source_group_count": 0
+  },
+  "source_weights_sha256": "132fd62dc6426925576ae6aab2db132aaf2cd70ad148971ef4402805ceebe3c2",
+  "training_job_id": "job-20261114-063204-897617ab",
+  "training_source": {
+    "kind": "registered",
+    "model_id": "model-20261113-140244-ce81f982",
+    "name": "추가 학습 · M3 추가 학습 · 사선·작은 사진·팬틸트 · 위치별 종류 무작위 · 11/13 14:02",
+    "weights_sha256": "132fd62dc6426925576ae6aab2db132aaf2cd70ad148971ef4402805ceebe3c2"
+  },
+  "weights_bytes": 5468783,
+  "weights_sha256": "84ea270449b2b9dda0cf1c6d8dcbd0e850ed4398156d7337aab16fbdac0e9914",
+  "plots": [],
+  "gallery": []
+}

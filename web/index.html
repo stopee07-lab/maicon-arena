@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111719">
+  <title>산타클로드 · MAICON 시뮬레이션</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="산타클로드 시뮬레이터 홈"><span class="brand-icon" aria-hidden="true">✳</span><span>산타클로드<span class="brand-sub">MAICON · SIMULATION LAB</span></span></a>
+    <div class="header-center"><span class="live-dot" id="connection-dot"></span><span id="connection-status">서버 연결 중</span><span class="header-divider"></span><span>LOCAL ENVIRONMENT</span></div>
+    <div class="header-actions"><a href="/fidelity.html" class="text-button">환경 설정</a><span class="env-tag">SIMULATOR</span><button id="role-button" class="button subtle" title="접속 역할 변경">운영자 <span aria-hidden="true">⌄</span></button><button id="guide-open" class="icon-button" aria-label="안내와 구현 범위">?</button></div>
+  </header>
+  <main>
+    <section class="page-heading">
+      <div><div class="eyebrow">MISSION CONTROL / 01</div><h1>전술 시뮬레이션</h1><p>경기 운영 · 6대 전략 비교 · 팀 코드 시험</p></div>
+      <div class="heading-meta"><span class="meta-label">ARENA</span><strong>6.12 × 5.00 <small>m</small></strong><span class="meta-caption">교육자료 기반 · 가상 환경</span></div>
+    </section>
+
+    <div class="workspace-bar"><div class="workspace-tabs" role="group" aria-label="실행 환경 선택"><button data-workspace="mission" class="active">경기 <small>MISSION</small></button><button data-workspace="practice">자유연습 <small>PRACTICE</small></button><button data-workspace="rehearsal">리허설 <small>REHEARSAL</small></button></div><span id="workspace-note">5분 경기 · 운영자 제어</span></div>
+    <div id="network-banner" class="network-banner" hidden role="status"></div>
+
+    <section class="match-bar" aria-label="경기 상태 및 운영">
+      <div class="match-identity"><span class="phase-icon" id="phase-icon">◌</span><div><span class="meta-label">MATCH STATUS</span><strong id="phase-label">연결 대기</strong></div></div>
+      <div class="match-clock"><span class="meta-label" id="clock-label">경기 경과</span><strong id="match-time">00:00<span>.0</span></strong><span class="clock-caption">서버 기준</span></div>
+      <div class="camp-score blue"><span>BLUE</span><strong id="blue-score">—</strong></div><span class="score-divider">:</span><div class="camp-score red"><strong id="red-score">—</strong><span>RED</span></div>
+      <div class="match-controls organizer-only"><label class="speed-control" title="서버 시뮬레이션 배속"><select id="speed-select" aria-label="시뮬레이션 배속"><option value="1">1× 실시간</option><option value="5">5× 빠르게</option><option value="20">20× 빠르게</option></select></label><button id="prepare-button" class="button primary" data-action="prepare">경기 준비 <span>→</span></button><button id="start-button" class="button primary" data-action="start" hidden>경기 시작 <span>▶</span></button><button id="pause-button" class="button primary" data-action="pause" hidden>일시정지 <span>Ⅱ</span></button><button id="resume-button" class="button primary" data-action="resume" hidden>계속 진행 <span>▶</span></button><button id="finish-button" class="button subtle" data-action="finish" hidden>종료</button><button id="reset-button" class="icon-button" data-action="reset" aria-label="경기 초기화" title="경기 초기화">↺</button></div>
+      <div class="viewer-only observer-note" hidden>관전자 모드 <span>읽기 전용</span></div>
+    </section>
+
+    <nav class="mobile-tabs" aria-label="화면 선택"><button data-tab="arena" class="active">경기장</button><button data-tab="robots">UGV <span>6</span></button><button data-tab="events">이벤트</button><button data-tab="training">내 로봇</button></nav>
+
+    <div class="dashboard-grid">
+      <section class="panel arena-panel mobile-panel active" data-panel="arena">
+        <div class="panel-heading"><div class="panel-title"><span class="mini-square"></span><h2>전술 상황판</h2><span class="panel-subtitle">LIVE ARENA</span></div><div class="arena-actions"><button id="grid-toggle" class="small-icon active" aria-label="격자 표시 전환" title="격자 표시 전환">▦</button><button id="labels-toggle" class="small-icon active" aria-label="레이블 표시 전환" title="레이블 표시 전환">Aa</button><button id="fullscreen-button" class="small-icon" aria-label="경기장 전체 화면" title="전체 화면">⛶</button></div></div>
+        <div id="arena-viewport" aria-label="3D 경기장. 드래그로 회전, 스크롤로 확대할 수 있습니다.">
+          <div class="arena-overlays"><div class="arena-top-meta"><span class="micro-badge"><i></i> AUTHORITATIVE SERVER</span><span class="scene-count">6 UGV · 20 Hz</span></div><div class="arena-loading" id="arena-loading"><span class="loader"></span><strong>경기장을 불러오는 중</strong><small>로컬 서버와 연결하고 있습니다.</small></div><div id="robot-labels" class="robot-labels"></div><div class="compass" aria-hidden="true"><span>N</span><div>↑</div></div><div class="arena-bottom-meta"><span id="selected-robot-label">B-1 · 관측 대상</span><span>마우스 드래그: 회전 · 스크롤: 확대</span></div></div>
+        </div>
+        <div class="arena-footer"><div class="camera-tabs" role="group" aria-label="카메라 시점"><button class="active" data-camera="orbit">◈ <span>3D 전체</span></button><button data-camera="top">▱ <span>탑뷰</span></button><button data-camera="follow">◎ <span>로봇 추적</span></button></div><div class="arena-legend"><span><i class="legend-dot blue"></i>BLUE</span><span><i class="legend-dot red"></i>RED</span><span><i class="legend-dot gold"></i>표적</span></div></div>
+        <div class="arena-disclaimer"><span>ⓘ</span><span>경기장 배치는 공식 참고 도면을 근사한 것입니다. 실제 경기장·물리·카메라와 차이가 있습니다.</span><button id="source-open">근거 보기 ↗</button></div>
+      </section>
+
+      <section class="panel robots-panel mobile-panel" data-panel="robots"><div class="panel-heading"><div class="panel-title"><span class="mini-square"></span><h2>UGV 상태</h2><span class="count-pill" id="robot-count">0 / 6</span></div><span class="panel-subtitle">6 TEAMS</span></div><div class="robots-list" id="robots-list"><div class="empty-state">서버 연결 후 6대의 상태가 표시됩니다.</div></div><div class="robots-footnote">기본 상대는 자기 센서와 경기 지시로 행동합니다.<br>특권 시연 모드는 환경 설정에 별도로 표시됩니다.</div></section>
+
+      <section class="panel events-panel mobile-panel" data-panel="events"><div class="panel-heading"><div class="panel-title"><span class="mini-square"></span><h2>경기 이벤트</h2><span class="panel-subtitle" id="event-count">0 EVENTS</span></div><button id="export-button" class="text-button organizer-only">기록 내보내기 <span>↓</span></button></div><div class="events-list" id="events-list" role="log" aria-label="최근 경기 이벤트"><div class="empty-state">경기를 준비하면 이벤트가 기록됩니다.</div></div></section>
+
+      <section class="panel training-panel mobile-panel" data-panel="training"><div class="panel-heading"><div class="panel-title"><span class="mini-square"></span><h2>내 로봇 워크벤치</h2></div><span class="tiny-tag">SENSOR ONLY</span></div><div class="workbench-body"><div class="workbench-top"><label>연결할 UGV <select id="own-slot" aria-label="내 로봇 선택"><option>B-1</option><option>B-2</option><option>B-3</option><option>R-1</option><option>R-2</option><option>R-3</option></select></label><span id="own-strategy" class="mode-chip">연결 대기</span></div><div class="sensor-preview" id="sensor-preview"><img id="sensor-image" alt="내 로봇의 합성 카메라 입력" hidden><div id="sensor-placeholder"><span>◎</span><strong>내 로봇의 시야</strong><small>로컬 합성 카메라 · 640 × 480</small></div><span class="sensor-badge" id="sensor-badge">SYNTHETIC CAMERA</span></div><div class="workbench-copy"><p>외부 Python / ROS 2 제어기로 주행과 인식을 실험하세요. 이 화면의 전술 지도는 제어기 입력에 포함되지 않습니다.</p><p class="external-warning" id="external-warning" hidden>외부 제어기는 1× 실시간 배속으로 사용하세요. 빠른 배속에서는 0.5초 watchdog이 먼저 만료될 수 있습니다.</p><div class="workbench-actions organizer-only"><button id="external-button" class="button secondary">외부 제어로 연결 <span>↗</span></button><button id="credentials-button" class="text-button">접속 정보</button></div><button id="training-info-button" class="text-button">연결 방법과 학습 범위 보기 →</button></div></div></section>
+    </div>
+    <footer class="page-footer"><span>산타클로드 <span class="footer-cross">×</span> MAICON 2026</span><span>로컬 연습 환경 · 공식 경기 운영 시스템 아님</span><span id="snapshot-time">아직 수신한 상태 없음</span></footer>
+  </main>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <dialog id="access-dialog"><form id="access-form"><div class="dialog-heading"><span class="eyebrow">ACCESS</span><button type="button" class="icon-button dialog-close" aria-label="닫기">×</button></div><h2>접속 역할 선택</h2><p>운영자는 경기를 제어하고, 관전자는 상태를 읽습니다.</p><label class="field-label">역할<select id="access-role"><option value="admin">운영자</option><option value="viewer">관전자 · 읽기 전용</option></select></label><label class="field-label">접속 키<input id="access-key" type="password" autocomplete="off" placeholder="로컬 연결 시 자동 설정"></label><p class="form-help">원격 접속에는 운영자 또는 관전자 전용 키가 필요합니다. 접속 키는 이 탭의 메모리에만 보관합니다.</p><button type="submit" class="button primary">연결</button></form></dialog>
+  <dialog id="guide-dialog"><div class="dialog-heading"><span class="eyebrow">ABOUT THE SIMULATOR</span><button class="icon-button dialog-close" aria-label="닫기">×</button></div><h2>구현 범위와 자료 근거</h2><p>공식 교육자료의 경기장과 UGV를 바탕으로 만든 로컬 연습용 시뮬레이터입니다. 아래의 차이를 확인하고 실제 로봇 검증과 함께 사용하세요.</p><figure class="reference-figure"><img src="/assets/arena-reference.jpg" alt="공식 1차 교육자료의 경기장 참고 도면"><figcaption>2026 MAICON 1차 교육자료 p.23–25 · 경기장 참고 이미지</figcaption></figure><div class="guide-grid"><div><span class="guide-number">01</span><h3>교육자료에서 확인</h3><p>경기장 약 6.12 × 5.00 m, 벽 높이 0.40 m, 20 cm 바닥 격자, 양 진영 각 3개 섹터·거점. UGV 250 × 230 × 320 mm, 6륜 구조와 팬틸트·카메라·라이다.</p></div><div><span class="guide-number">02</span><h3>이 환경의 근사</h3><p>장애물 위치·표적 배치·주행·레이저 판정은 단순화한 시뮬레이션입니다. Gazebo 물리 엔진이나 실측 디지털 트윈이 아닙니다. 합성 카메라는 실제 영상 도메인과 다릅니다.</p></div><div><span class="guide-number">03</span><h3>전략 실험과 학습</h3><p>기본 상대는 센서 기반 정책이며 학습된 AI가 아닙니다. 특권 시연 정책은 설정에서 별도로 선택합니다. 내 Python / ROS 2 제어기는 별도 센서 API로 연결합니다. 실제 모델 훈련은 데이터 생성과 학습 명령 실행이 필요합니다.</p></div><div><span class="guide-number">04</span><h3>공식 규칙과 구현</h3><p>공식 경기 API와 시뮬레이터용 로봇 API는 구분됩니다. 점수·판정의 미확정 사항은 서버가 아래에 표시합니다. 실제 대회 공지와 로봇에서 반드시 다시 검증하세요.</p></div></div><div class="provisional-box"><h3>현재 구현의 가정</h3><ul id="provisional-list"><li>서버 연결 후 표시됩니다.</li></ul></div><p class="source-note">근거: 1차 교육자료 p.21(UGV), p.23–25(경기장·이벤트 장치), p.26(대시보드) · 공식 game-server-api.html. 세부 대응표는 프로젝트의 docs/rules-audit.md를 참고하세요.</p></dialog>
+  <dialog id="training-dialog"><div class="dialog-heading"><span class="eyebrow">ROBOT INTERFACE</span><button class="icon-button dialog-close" aria-label="닫기">×</button></div><h2>내 코드로 움직이는 UGV</h2><p>워크벤치에서 슬롯을 고른 뒤 외부 제어를 활성화하세요. 선택한 로봇은 스크립트 대신 Python / ROS 2의 명령을 기다립니다.</p><ol class="instruction-list"><li><strong>선택한 로봇의 접속 정보 확인</strong><span>mission_code는 해당 로봇의 센서·명령·공식 보고 API를 식별합니다.</span></li><li><strong>별도 프로세스에서 제어기 실행</strong><span>프로젝트의 README 및 docs/robot-training.md에 있는 예제로 연결하세요. 브라우저는 업로드한 Python을 실행하지 않습니다.</span></li><li><strong id="robot-start-step">경기를 준비하고 시작</strong><span id="robot-start-description">센서와 경기 지시를 읽어 속도·팬틸트·레이저 명령을 전송합니다. 속도 명령은 0.5초 watchdog으로 멈춥니다.</span></li></ol><div class="command-guide"><h3>Mac 예제 제어기</h3><p>simulator 폴더에서 실행 · 기본 센서 기반 주행 데모입니다.</p><pre id="mac-command">python3 examples/mac_team.py \
+  --mission-code '내 로봇의 접속 코드' \
+  --mode match --duration 360 \
+  --camera-output output/own-camera.jpg</pre><p class="external-warning">외부 제어기는 1× 배속을 사용하세요. 5× / 20×에서는 서버 시간 기준 watchdog이 실제 명령 주기보다 빠르게 만료됩니다.</p><h3>별도 합성 데이터 학습</h3><p>운영자 키로 데이터셋을 내보낸 후, 필요한 학습 패키지를 설치하고 실행합니다. 아래 명령을 표시한 것만으로 학습이 실행되지는 않습니다.</p><pre>SIM_ADMIN_KEY='운영자 키' \
+python3 training/export_dataset.py \
+  --output training/datasets/synthetic-v1 \
+  --count 120 --seed 42
+
+python3 training/train_yolo.py \
+  --data training/datasets/synthetic-v1/data.yaml \
+  --model yolo26n.yaml --epochs 30 --device cpu</pre></div><div class="endpoint-card"><span>센서 · 로봇 자신만 관측</span><code data-endpoint="state">GET /sim/robot/state</code><code data-endpoint="camera">GET /sim/robot/camera</code><span>로봇 제어</span><code data-endpoint="cmd_vel">POST /sim/robot/cmd_vel</code><code data-endpoint="gimbal">POST /sim/robot/gimbal</code><code data-endpoint="fire">POST /sim/robot/fire</code><span>공식 경기 연동</span><code id="official-endpoint">/api/report/me · /order · /target</code><p id="workspace-robot-note" class="form-help"></p></div><p class="form-help">이 시뮬레이터의 합성 영상과 라이다는 실물 센서의 특성을 전부 재현하지 않습니다. ROS 2 연결 규격은 별도 어댑터이며 공식 커스텀 메시지와의 바이너리 호환을 보장하지 않습니다.</p></dialog>
+  <dialog id="robot-dialog"><div class="dialog-heading"><span class="eyebrow">UGV DETAIL</span><button class="icon-button dialog-close" aria-label="닫기">×</button></div><h2 id="detail-title">B-1</h2><div id="robot-detail"></div></dialog>
+  <dialog id="credentials-dialog"><div class="dialog-heading"><span class="eyebrow">LOCAL ROBOT ACCESS</span><button class="icon-button dialog-close" aria-label="닫기">×</button></div><h2 id="credential-title">B-1 접속 정보</h2><p>별도 제어기에 아래 슬롯의 mission_code를 넣으세요.</p><label class="field-label">mission_code<input id="mission-code" type="password" readonly autocomplete="off"></label><button id="copy-code-button" class="button secondary">접속 코드 복사</button><p class="form-help">이 키는 선택한 로봇용입니다. 운영자 키와 관전자 키를 제어기에 사용하지 마세요.</p></dialog>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

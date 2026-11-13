@@ -1,0 +1,5 @@
+# Empty request and response field names message,left_ms: PDF2 p16.
+---
+# Field primitive types are simulator choices, not official binary definitions.
+string message
+int32 left_ms

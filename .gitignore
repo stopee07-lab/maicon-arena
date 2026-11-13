@@ -1,0 +1,15 @@
+training/.venv
+.venv
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+data/
+physics_data/
+runtime/
+*.log
+.env
+.env.*
+*.key
+*.pem
+

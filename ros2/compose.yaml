@@ -1,0 +1,17 @@
+services:
+  bridge:
+    image: maicon-rebuild-ros2:humble
+    build:
+      context: ..
+      dockerfile: ros2/Dockerfile
+    environment:
+      SIM_SERVER: ${SIM_SERVER:-http://host.docker.internal:8887}
+      MISSION_CODE: ${MISSION_CODE:?Set own mission code from local organizer settings}
+      ROBOT_NAMESPACE: ${ROBOT_NAMESPACE:-}
+      SIM_MODE: ${SIM_MODE:-match}
+      SIM_READ_ONLY: ${SIM_READ_ONLY:-false}
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}
+    # Colima and Docker Desktop resolve host.docker.internal to the Mac.
+    # Do not override it with host-gateway: that is the Linux VM, not macOS.
+    init: true
+    # no exposed ports; run team code using docker compose exec bridge.

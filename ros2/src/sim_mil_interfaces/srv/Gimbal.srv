@@ -1,0 +1,8 @@
+# Request field names: PDF2 p14. Float widths and response field name inferred.
+float64 pan
+float64 tilt
+float64 speed
+float64 acc
+---
+# PDF says ok / locked; does not supply a full .srv response definition.
+string message

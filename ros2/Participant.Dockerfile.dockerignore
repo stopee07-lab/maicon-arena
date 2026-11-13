@@ -1,0 +1,7 @@
+**
+!ros2
+!ros2/src
+!ros2/src/**
+!ros2/participant-entrypoint.sh
+!ros2/participant-container.py
+**/__pycache__/**

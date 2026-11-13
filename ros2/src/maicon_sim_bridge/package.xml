@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>maicon_sim_bridge</name><version>0.1.0</version>
+  <description>Own-sensor HTTP to ROS2 Humble simulator bridge.</description>
+  <maintainer email="local@example.invalid">MAICON local team</maintainer>
+  <license>Proprietary</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>rclpy</exec_depend><exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend><exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>sim_mil_interfaces</exec_depend><exec_depend>launch_ros</exec_depend>
+  <exec_depend>python3-pil</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>
