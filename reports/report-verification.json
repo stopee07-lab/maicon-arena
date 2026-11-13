@@ -1,0 +1,11 @@
+{
+  "status": "structural_checks_passed",
+  "final": true,
+  "attempts": 90,
+  "latest_matches": 3,
+  "current_condition_completed": 28,
+  "embedded_data": true,
+  "external_dependencies": 0,
+  "html_bytes": 583511,
+  "html_sha256": "11ff159034c5f87a59fab9d4069339ede1c9df9be76f26b5d9111aef48cb16ba"
+}

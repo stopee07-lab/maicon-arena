@@ -1,0 +1,268 @@
+{
+  "trial_id": "verified-perception-e4d6c585d8d3-02",
+  "index": 2,
+  "seed": 105,
+  "score": {
+    "m1": 10,
+    "m2": 0,
+    "m3": 0,
+    "m4": 15,
+    "m5": 0,
+    "m6": 5,
+    "bonus": 5,
+    "total": 35
+  },
+  "m3": {
+    "zones": [
+      {
+        "sector": "R-S1",
+        "truth": {
+          "MILITARY_TRUCK": 1,
+          "MISSILE": 1,
+          "MORTAR": 1,
+          "AMMO_BOX": 2,
+          "TANK": 2,
+          "DRUM": 1
+        },
+        "reported": {
+          "AMMO_BOX": 1,
+          "MILITARY_TRUCK": 1,
+          "MISSILE": 1,
+          "MORTAR": 1,
+          "TANK": 2
+        },
+        "missing": {
+          "AMMO_BOX": 1,
+          "DRUM": 1
+        },
+        "extra": {},
+        "exact": false,
+        "earned": 0,
+        "available": 7
+      },
+      {
+        "sector": "R-S2",
+        "truth": {
+          "DRUM": 2,
+          "MILITARY_TRUCK": 3,
+          "MORTAR": 2,
+          "TANK": 1
+        },
+        "reported": {
+          "DRUM": 2,
+          "MILITARY_TRUCK": 2,
+          "MORTAR": 1,
+          "TANK": 1
+        },
+        "missing": {
+          "MILITARY_TRUCK": 1,
+          "MORTAR": 1
+        },
+        "extra": {},
+        "exact": false,
+        "earned": 0,
+        "available": 7
+      },
+      {
+        "sector": "R-S3",
+        "truth": {
+          "TANK": 1,
+          "MILITARY_TRUCK": 1,
+          "AMMO_BOX": 3,
+          "MORTAR": 3
+        },
+        "reported": {
+          "AMMO_BOX": 1,
+          "MORTAR": 1,
+          "TANK": 1
+        },
+        "missing": {
+          "MILITARY_TRUCK": 1,
+          "AMMO_BOX": 2,
+          "MORTAR": 2
+        },
+        "extra": {},
+        "exact": false,
+        "earned": 0,
+        "available": 7
+      },
+      {
+        "sector": "CM",
+        "truth": {
+          "MISSILE": 3,
+          "MORTAR": 1,
+          "TANK": 1,
+          "DRUM": 1,
+          "MILITARY_TRUCK": 1,
+          "AMMO_BOX": 1
+        },
+        "reported": {
+          "AMMO_BOX": 1,
+          "DRUM": 2,
+          "MILITARY_TRUCK": 1,
+          "MISSILE": 2,
+          "TANK": 1
+        },
+        "missing": {
+          "MISSILE": 1,
+          "MORTAR": 1
+        },
+        "extra": {
+          "DRUM": 1
+        },
+        "exact": false,
+        "earned": 0,
+        "available": 9
+      }
+    ],
+    "truth_count": 32,
+    "reported_count": 22,
+    "missing_count": 11,
+    "extra_count": 1,
+    "exact_zones": [],
+    "score": 0
+  },
+  "source_analysis": "output/MAICON_검증_3경기_2026-11-14/verification/new-matches/match-02-analysis.json",
+  "source_controller": "output/MAICON_실전정합_2026-11-13/simulator/data/workbench/controllers/controller-20261114-072112-7414ff5e",
+  "perception_counts": {
+    "detections": 5471,
+    "photo_accepted": 2946,
+    "no_position": 183,
+    "offered_to_store": 2806,
+    "new_track_hit": 2769
+  },
+  "decision_reasons": {
+    "insufficient_joint_photo_evidence": 2508,
+    "strong_reference_photo": 2524,
+    "learned_and_reference_agree": 422,
+    "no_reference_photo_match": 17
+  },
+  "gates": {
+    "legacy_outside_review": 2447,
+    "fresh_registered_slow_motion": 347,
+    "motion_too_fast": 62,
+    "stationary": 12
+  },
+  "stage_inference_frames": {
+    "await_order": 5,
+    "survey": 130,
+    "m3_approach": 888,
+    "m3_align": 30,
+    "m3_observe": 16,
+    "capture": 394
+  },
+  "active_navigation_seconds": {
+    "following clearance-weighted path": 104.9,
+    "await fresh rotation scan": 47.9,
+    "await fresh front scan": 33.15,
+    "bounded turn toward measured free side": 26.2,
+    "blocked: yield before bounded reverse and replan": 26.05,
+    "recovery budget exhausted; wait for measured route to clear": 15.1,
+    "bounded reverse with rear clearance": 12.65,
+    "rotation footprint clearance insufficient": 10.4,
+    "await fresh recovery scan; attempt retained": 6.65,
+    "aligning own camera to observed block": 4.9,
+    "measured straight escape from inflated start cell": 3.2,
+    "stationary fresh-frame verification of observed block": 3.2,
+    "replan after recovery": 2.3,
+    "translation speed reduced to preserve stopping clearance": 1.5,
+    "observation sweep ended": 0.6,
+    "waiting for an accepted unambiguous order": 0.55,
+    "no traversable global path; waiting for fresh map": 0.5
+  },
+  "active_stage_seconds": {
+    "await_order": 0.55,
+    "survey": 28.3,
+    "m3_approach": 201.35,
+    "m3_align": 6.5,
+    "m3_observe": 3.2,
+    "capture": 59.85
+  },
+  "last_active_frame": {
+    "frame_seq": 1323,
+    "measured_at": 299.85,
+    "cmd": "start",
+    "normalized_report": {
+      "CM": {
+        "AMMO_BOX": 1,
+        "DRUM": 2,
+        "MILITARY_TRUCK": 1,
+        "MISSILE": 2,
+        "TANK": 1
+      },
+      "R-S1": {
+        "AMMO_BOX": 1,
+        "MILITARY_TRUCK": 1,
+        "MISSILE": 1,
+        "MORTAR": 1,
+        "TANK": 2
+      },
+      "R-S2": {
+        "DRUM": 2,
+        "MILITARY_TRUCK": 2,
+        "MORTAR": 1,
+        "TANK": 1
+      },
+      "R-S3": {
+        "AMMO_BOX": 1,
+        "MORTAR": 1,
+        "TANK": 1
+      }
+    }
+  },
+  "submitted_report": {
+    "CM": {
+      "AMMO_BOX": 1,
+      "DRUM": 2,
+      "MILITARY_TRUCK": 1,
+      "MISSILE": 2,
+      "TANK": 1
+    },
+    "R-S1": {
+      "AMMO_BOX": 1,
+      "MILITARY_TRUCK": 1,
+      "MISSILE": 1,
+      "MORTAR": 1,
+      "TANK": 2
+    },
+    "R-S2": {
+      "DRUM": 2,
+      "MILITARY_TRUCK": 2,
+      "MORTAR": 1,
+      "TANK": 1
+    },
+    "R-S3": {
+      "AMMO_BOX": 1,
+      "MORTAR": 1,
+      "TANK": 1
+    }
+  },
+  "last_active_report_equals_server_submission": true,
+  "post_report_draft_changes": [],
+  "completed_survey_points": [
+    [
+      3.7,
+      4.15
+    ],
+    [
+      3.5007419903259125,
+      4.131365897280402
+    ]
+  ],
+  "failed_goal_reasons": {
+    "front obstruction": 3,
+    "coverage waypoint timed out; not counted complete": 5,
+    "block observation budget expired; partial evidence retained": 1,
+    "no traversable global path; waiting for fresh map": 1,
+    "no safe reverse/turn corridor": 2
+  },
+  "m2_selected_samples": 1,
+  "m2_status_selected_samples": 4,
+  "m2_target": "RED_COMMS",
+  "m2_fire_commands": 0,
+  "notes": [
+    "Decision counts are repeated detections, not unique objects. Admin truth is joined only in this offline report.",
+    "No m3_observe stage does not mean the vehicle never stopped; it means the explicit settled block observation stage was not reached.",
+    "Post report draft observations did not alter the submitted report and are not credited as scored objects."
+  ]
+}

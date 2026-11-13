@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "results": [
+    {
+      "width": 360,
+      "status": "passed",
+      "body_width": 360,
+      "all_records": 90,
+      "filtered_current": 28,
+      "json_download": true,
+      "csv_download": true,
+      "javascript_errors": 0
+    },
+    {
+      "width": 390,
+      "status": "passed",
+      "body_width": 390,
+      "all_records": 90,
+      "filtered_current": 28,
+      "json_download": true,
+      "csv_download": true,
+      "javascript_errors": 0
+    },
+    {
+      "width": 430,
+      "status": "passed",
+      "body_width": 430,
+      "all_records": 90,
+      "filtered_current": 28,
+      "json_download": true,
+      "csv_download": true,
+      "javascript_errors": 0
+    },
+    {
+      "width": 1280,
+      "status": "passed",
+      "body_width": 1280,
+      "all_records": 90,
+      "filtered_current": 28,
+      "json_download": true,
+      "csv_download": true,
+      "javascript_errors": 0
+    }
+  ]
+}

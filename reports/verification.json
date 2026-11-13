@@ -1,0 +1,983 @@
+{
+  "verified_at": "2026-11-14",
+  "scope": "Mac local simulator with printed example photographs; not a physical UGV trial",
+  "code_bundle_sha256": "ba694ad6843cea396bd0a79c740616400845bd5a84bca911ee91a5e79fd96090",
+  "model_sha256": "84ea270449b2b9dda0cf1c6d8dcbd0e850ed4398156d7337aab16fbdac0e9914",
+  "tests": {
+    "package_passed": 129,
+    "package_skipped": 1,
+    "new_regressions_passed": 7
+  },
+  "heldout_photo_test": {
+    "images": 120,
+    "annotated_instances": 601,
+    "before": {
+      "tp": 295,
+      "fp": 2,
+      "fn": 306,
+      "precision": 0.9932659932659933,
+      "recall": 0.4908485856905158,
+      "negative_fp": 0,
+      "by_class": {
+        "military_truck": {
+          "tp": 43,
+          "fp": 1,
+          "fn": 47
+        },
+        "mortar": {
+          "tp": 36,
+          "fp": 0,
+          "fn": 60
+        },
+        "tank": {
+          "tp": 64,
+          "fp": 1,
+          "fn": 53
+        },
+        "missile": {
+          "tp": 55,
+          "fp": 0,
+          "fn": 50
+        },
+        "ammo_box": {
+          "tp": 40,
+          "fp": 0,
+          "fn": 52
+        },
+        "drum": {
+          "tp": 57,
+          "fp": 0,
+          "fn": 44
+        }
+      }
+    },
+    "after": {
+      "tp": 336,
+      "fp": 2,
+      "fn": 265,
+      "precision": 0.9940828402366864,
+      "recall": 0.5590682196339434,
+      "negative_fp": 0,
+      "by_class": {
+        "military_truck": {
+          "tp": 48,
+          "fp": 1,
+          "fn": 42
+        },
+        "mortar": {
+          "tp": 43,
+          "fp": 0,
+          "fn": 53
+        },
+        "tank": {
+          "tp": 74,
+          "fp": 1,
+          "fn": 43
+        },
+        "missile": {
+          "tp": 57,
+          "fp": 0,
+          "fn": 48
+        },
+        "ammo_box": {
+          "tp": 52,
+          "fp": 0,
+          "fn": 40
+        },
+        "drum": {
+          "tp": 62,
+          "fp": 0,
+          "fn": 39
+        }
+      }
+    },
+    "threshold_selected_on": "val120_only",
+    "negative_scene_false_positives_before": 0,
+    "negative_scene_false_positives_after": 0
+  },
+  "three_matches": [
+    {
+      "trial_id": "verified-perception-e4d6c585d8d3-01",
+      "seed": 104,
+      "score": {
+        "m1": 10,
+        "m2": 0,
+        "m3": 0,
+        "m4": 15,
+        "m5": 0,
+        "m6": 5,
+        "bonus": 5,
+        "total": 35
+      },
+      "m3": {
+        "zones": [
+          {
+            "sector": "R-S1",
+            "truth": {
+              "MORTAR": 3,
+              "MILITARY_TRUCK": 3,
+              "AMMO_BOX": 1,
+              "MISSILE": 1
+            },
+            "reported": {
+              "MILITARY_TRUCK": 2,
+              "MORTAR": 2
+            },
+            "missing": {
+              "MORTAR": 1,
+              "MILITARY_TRUCK": 1,
+              "AMMO_BOX": 1,
+              "MISSILE": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "R-S2",
+            "truth": {
+              "AMMO_BOX": 2,
+              "MILITARY_TRUCK": 1,
+              "MISSILE": 2,
+              "TANK": 2,
+              "MORTAR": 1
+            },
+            "reported": {
+              "AMMO_BOX": 2,
+              "TANK": 1
+            },
+            "missing": {
+              "MILITARY_TRUCK": 1,
+              "MISSILE": 2,
+              "TANK": 1,
+              "MORTAR": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "R-S3",
+            "truth": {
+              "MILITARY_TRUCK": 2,
+              "AMMO_BOX": 2
+            },
+            "reported": {},
+            "missing": {
+              "MILITARY_TRUCK": 2,
+              "AMMO_BOX": 2
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "CM",
+            "truth": {
+              "AMMO_BOX": 1,
+              "TANK": 1,
+              "MISSILE": 1,
+              "DRUM": 1
+            },
+            "reported": {
+              "DRUM": 1
+            },
+            "missing": {
+              "AMMO_BOX": 1,
+              "TANK": 1,
+              "MISSILE": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 9
+          }
+        ],
+        "truth_count": 24,
+        "reported_count": 8,
+        "missing_count": 16,
+        "extra_count": 0,
+        "exact_zones": [],
+        "score": 0
+      },
+      "previous": {
+        "kind": "J_with_previous_model",
+        "seed": 104,
+        "score": {
+          "m1": 10,
+          "m2": 0,
+          "m3": 7,
+          "m4": 15,
+          "m5": 0,
+          "m6": 5,
+          "bonus": 5,
+          "total": 42
+        },
+        "m3": {
+          "zones": [
+            {
+              "sector": "R-S1",
+              "truth": {
+                "MORTAR": 3,
+                "MILITARY_TRUCK": 3,
+                "AMMO_BOX": 1,
+                "MISSILE": 1
+              },
+              "reported": {
+                "MILITARY_TRUCK": 1,
+                "MORTAR": 3
+              },
+              "missing": {
+                "MILITARY_TRUCK": 2,
+                "AMMO_BOX": 1,
+                "MISSILE": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "R-S2",
+              "truth": {
+                "AMMO_BOX": 2,
+                "MILITARY_TRUCK": 1,
+                "MISSILE": 2,
+                "TANK": 2,
+                "MORTAR": 1
+              },
+              "reported": {
+                "AMMO_BOX": 2,
+                "MILITARY_TRUCK": 1,
+                "MISSILE": 2,
+                "MORTAR": 1,
+                "TANK": 2
+              },
+              "missing": {},
+              "extra": {},
+              "exact": true,
+              "earned": 7,
+              "available": 7
+            },
+            {
+              "sector": "R-S3",
+              "truth": {
+                "MILITARY_TRUCK": 2,
+                "AMMO_BOX": 2
+              },
+              "reported": {
+                "AMMO_BOX": 1,
+                "MILITARY_TRUCK": 1
+              },
+              "missing": {
+                "MILITARY_TRUCK": 1,
+                "AMMO_BOX": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "CM",
+              "truth": {
+                "AMMO_BOX": 1,
+                "TANK": 1,
+                "MISSILE": 1,
+                "DRUM": 1
+              },
+              "reported": {
+                "AMMO_BOX": 1,
+                "DRUM": 1
+              },
+              "missing": {
+                "TANK": 1,
+                "MISSILE": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 9
+            }
+          ],
+          "truth_count": 24,
+          "reported_count": 16,
+          "missing_count": 8,
+          "extra_count": 0,
+          "exact_zones": [
+            "R-S2"
+          ],
+          "score": 7
+        },
+        "source": "output/MAICON_실전정합_2026-11-13/simulator/data/evaluations/evaluation-515244953c18/match-001.json",
+        "condition_equal": {
+          "identity": true,
+          "rule_configuration": true,
+          "sensor_configuration": true,
+          "object_layout": true
+        }
+      },
+      "previous_same_model": {
+        "kind": "J_with_same_new_model",
+        "score": {
+          "m1": 10,
+          "m2": 0,
+          "m3": 0,
+          "m4": 15,
+          "m5": 0,
+          "m6": 5,
+          "bonus": 5,
+          "total": 35
+        },
+        "m3": {
+          "zones": [
+            {
+              "sector": "R-S1",
+              "truth": {
+                "MORTAR": 3,
+                "MILITARY_TRUCK": 3,
+                "AMMO_BOX": 1,
+                "MISSILE": 1
+              },
+              "reported": {
+                "MILITARY_TRUCK": 1,
+                "MORTAR": 1
+              },
+              "missing": {
+                "MORTAR": 2,
+                "MILITARY_TRUCK": 2,
+                "AMMO_BOX": 1,
+                "MISSILE": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "R-S2",
+              "truth": {
+                "AMMO_BOX": 2,
+                "MILITARY_TRUCK": 1,
+                "MISSILE": 2,
+                "TANK": 2,
+                "MORTAR": 1
+              },
+              "reported": {
+                "AMMO_BOX": 2,
+                "MISSILE": 1
+              },
+              "missing": {
+                "MILITARY_TRUCK": 1,
+                "MISSILE": 1,
+                "TANK": 2,
+                "MORTAR": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "R-S3",
+              "truth": {
+                "MILITARY_TRUCK": 2,
+                "AMMO_BOX": 2
+              },
+              "reported": {
+                "MILITARY_TRUCK": 1
+              },
+              "missing": {
+                "MILITARY_TRUCK": 1,
+                "AMMO_BOX": 2
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "CM",
+              "truth": {
+                "AMMO_BOX": 1,
+                "TANK": 1,
+                "MISSILE": 1,
+                "DRUM": 1
+              },
+              "reported": {
+                "AMMO_BOX": 1,
+                "MISSILE": 1
+              },
+              "missing": {
+                "TANK": 1,
+                "DRUM": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 9
+            }
+          ],
+          "truth_count": 24,
+          "reported_count": 8,
+          "missing_count": 16,
+          "extra_count": 0,
+          "exact_zones": [],
+          "score": 0
+        },
+        "source": "output/MAICON_실전정합_2026-11-13/simulator/data/evaluations/evaluation-14428c27c04b/match-001.json",
+        "condition_equal": {
+          "identity": true,
+          "rule_configuration": true,
+          "sensor_configuration": true,
+          "object_layout": true
+        }
+      },
+      "score_delta_from_J": -7,
+      "m3_delta_from_J": -7,
+      "exact_replay": {
+        "status": "passed",
+        "frames": 1572,
+        "offered_observations": 2924,
+        "new_track_hits": 2428,
+        "source": "output/MAICON_검증_3경기_2026-11-14/verification/new-matches/match-01-exact-replay.json",
+        "sha256": "a5d7e8be4c9582821547bc617411dbf1975c44b910c244b3e9ac5bc04dbeea37"
+      },
+      "limitations": [
+        "Same printed example artwork domain; not new pictures or real UGV validation.",
+        "All three use different seeds104/105/106; not three repeats of one exact layout.",
+        "Exact receipt replay verifies internal counting; actual server scoring comes from raw match export.",
+        "M1/M6 practice fixture remains; M4 survival points do not demonstrate firing accuracy."
+      ]
+    },
+    {
+      "trial_id": "verified-perception-e4d6c585d8d3-02",
+      "seed": 105,
+      "score": {
+        "m1": 10,
+        "m2": 0,
+        "m3": 0,
+        "m4": 15,
+        "m5": 0,
+        "m6": 5,
+        "bonus": 5,
+        "total": 35
+      },
+      "m3": {
+        "zones": [
+          {
+            "sector": "R-S1",
+            "truth": {
+              "MILITARY_TRUCK": 1,
+              "MISSILE": 1,
+              "MORTAR": 1,
+              "AMMO_BOX": 2,
+              "TANK": 2,
+              "DRUM": 1
+            },
+            "reported": {
+              "AMMO_BOX": 1,
+              "MILITARY_TRUCK": 1,
+              "MISSILE": 1,
+              "MORTAR": 1,
+              "TANK": 2
+            },
+            "missing": {
+              "AMMO_BOX": 1,
+              "DRUM": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "R-S2",
+            "truth": {
+              "DRUM": 2,
+              "MILITARY_TRUCK": 3,
+              "MORTAR": 2,
+              "TANK": 1
+            },
+            "reported": {
+              "DRUM": 2,
+              "MILITARY_TRUCK": 2,
+              "MORTAR": 1,
+              "TANK": 1
+            },
+            "missing": {
+              "MILITARY_TRUCK": 1,
+              "MORTAR": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "R-S3",
+            "truth": {
+              "TANK": 1,
+              "MILITARY_TRUCK": 1,
+              "AMMO_BOX": 3,
+              "MORTAR": 3
+            },
+            "reported": {
+              "AMMO_BOX": 1,
+              "MORTAR": 1,
+              "TANK": 1
+            },
+            "missing": {
+              "MILITARY_TRUCK": 1,
+              "AMMO_BOX": 2,
+              "MORTAR": 2
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "CM",
+            "truth": {
+              "MISSILE": 3,
+              "MORTAR": 1,
+              "TANK": 1,
+              "DRUM": 1,
+              "MILITARY_TRUCK": 1,
+              "AMMO_BOX": 1
+            },
+            "reported": {
+              "AMMO_BOX": 1,
+              "DRUM": 2,
+              "MILITARY_TRUCK": 1,
+              "MISSILE": 2,
+              "TANK": 1
+            },
+            "missing": {
+              "MISSILE": 1,
+              "MORTAR": 1
+            },
+            "extra": {
+              "DRUM": 1
+            },
+            "exact": false,
+            "earned": 0,
+            "available": 9
+          }
+        ],
+        "truth_count": 32,
+        "reported_count": 22,
+        "missing_count": 11,
+        "extra_count": 1,
+        "exact_zones": [],
+        "score": 0
+      },
+      "previous": {
+        "kind": "J_with_previous_model",
+        "seed": 105,
+        "score": {
+          "m1": 10,
+          "m2": 0,
+          "m3": 0,
+          "m4": 15,
+          "m5": 10,
+          "m6": 5,
+          "bonus": 5,
+          "total": 45
+        },
+        "m3": {
+          "zones": [
+            {
+              "sector": "R-S1",
+              "truth": {
+                "MILITARY_TRUCK": 1,
+                "MISSILE": 1,
+                "MORTAR": 1,
+                "AMMO_BOX": 2,
+                "TANK": 2,
+                "DRUM": 1
+              },
+              "reported": {
+                "MILITARY_TRUCK": 1,
+                "MISSILE": 1,
+                "MORTAR": 1,
+                "TANK": 3
+              },
+              "missing": {
+                "AMMO_BOX": 2,
+                "DRUM": 1
+              },
+              "extra": {
+                "TANK": 1
+              },
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "R-S2",
+              "truth": {
+                "DRUM": 2,
+                "MILITARY_TRUCK": 3,
+                "MORTAR": 2,
+                "TANK": 1
+              },
+              "reported": {
+                "DRUM": 2,
+                "MILITARY_TRUCK": 3,
+                "MORTAR": 1,
+                "TANK": 1
+              },
+              "missing": {
+                "MORTAR": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "R-S3",
+              "truth": {
+                "TANK": 1,
+                "MILITARY_TRUCK": 1,
+                "AMMO_BOX": 3,
+                "MORTAR": 3
+              },
+              "reported": {
+                "AMMO_BOX": 1,
+                "TANK": 1
+              },
+              "missing": {
+                "MILITARY_TRUCK": 1,
+                "AMMO_BOX": 2,
+                "MORTAR": 3
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "CM",
+              "truth": {
+                "MISSILE": 3,
+                "MORTAR": 1,
+                "TANK": 1,
+                "DRUM": 1,
+                "MILITARY_TRUCK": 1,
+                "AMMO_BOX": 1
+              },
+              "reported": {
+                "DRUM": 1,
+                "MILITARY_TRUCK": 1,
+                "TANK": 1
+              },
+              "missing": {
+                "MISSILE": 3,
+                "MORTAR": 1,
+                "AMMO_BOX": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 9
+            }
+          ],
+          "truth_count": 32,
+          "reported_count": 18,
+          "missing_count": 15,
+          "extra_count": 1,
+          "exact_zones": [],
+          "score": 0
+        },
+        "source": "output/MAICON_실전정합_2026-11-13/simulator/data/evaluations/evaluation-515244953c18/match-002.json",
+        "condition_equal": {
+          "identity": true,
+          "rule_configuration": true,
+          "sensor_configuration": true,
+          "object_layout": true
+        }
+      },
+      "previous_same_model": null,
+      "score_delta_from_J": -10,
+      "m3_delta_from_J": 0,
+      "exact_replay": {
+        "status": "passed",
+        "frames": 1463,
+        "offered_observations": 2806,
+        "new_track_hits": 2769,
+        "source": "output/MAICON_검증_3경기_2026-11-14/verification/new-matches/match-02-exact-replay.json",
+        "sha256": "dd48143d1474f49b6c507501157c159d3ce3f2b5cdc8e195ebefb0267270aabc"
+      },
+      "limitations": [
+        "Same printed example artwork domain; not new pictures or real UGV validation.",
+        "All three use different seeds104/105/106; not three repeats of one exact layout.",
+        "Exact receipt replay verifies internal counting; actual server scoring comes from raw match export.",
+        "M1/M6 practice fixture remains; M4 survival points do not demonstrate firing accuracy."
+      ]
+    },
+    {
+      "trial_id": "verified-perception-e4d6c585d8d3-03",
+      "seed": 106,
+      "score": {
+        "m1": 10,
+        "m2": 0,
+        "m3": 0,
+        "m4": 15,
+        "m5": 0,
+        "m6": 5,
+        "bonus": 5,
+        "total": 35
+      },
+      "m3": {
+        "zones": [
+          {
+            "sector": "R-S1",
+            "truth": {
+              "TANK": 1,
+              "MISSILE": 2,
+              "AMMO_BOX": 2,
+              "DRUM": 2,
+              "MORTAR": 1
+            },
+            "reported": {
+              "TANK": 1
+            },
+            "missing": {
+              "MISSILE": 2,
+              "AMMO_BOX": 2,
+              "DRUM": 2,
+              "MORTAR": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "R-S2",
+            "truth": {
+              "MISSILE": 2,
+              "DRUM": 1,
+              "MORTAR": 2,
+              "TANK": 2,
+              "MILITARY_TRUCK": 1
+            },
+            "reported": {
+              "MISSILE": 1
+            },
+            "missing": {
+              "MISSILE": 1,
+              "DRUM": 1,
+              "MORTAR": 2,
+              "TANK": 2,
+              "MILITARY_TRUCK": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "R-S3",
+            "truth": {
+              "AMMO_BOX": 1,
+              "TANK": 1,
+              "MILITARY_TRUCK": 4,
+              "MISSILE": 1,
+              "MORTAR": 1
+            },
+            "reported": {},
+            "missing": {
+              "AMMO_BOX": 1,
+              "TANK": 1,
+              "MILITARY_TRUCK": 4,
+              "MISSILE": 1,
+              "MORTAR": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 7
+          },
+          {
+            "sector": "CM",
+            "truth": {
+              "AMMO_BOX": 2,
+              "MORTAR": 1,
+              "MISSILE": 1,
+              "TANK": 3,
+              "MILITARY_TRUCK": 1
+            },
+            "reported": {
+              "TANK": 1
+            },
+            "missing": {
+              "AMMO_BOX": 2,
+              "MORTAR": 1,
+              "MISSILE": 1,
+              "TANK": 2,
+              "MILITARY_TRUCK": 1
+            },
+            "extra": {},
+            "exact": false,
+            "earned": 0,
+            "available": 9
+          }
+        ],
+        "truth_count": 32,
+        "reported_count": 3,
+        "missing_count": 29,
+        "extra_count": 0,
+        "exact_zones": [],
+        "score": 0
+      },
+      "previous": {
+        "kind": "J_with_previous_model",
+        "seed": 106,
+        "score": {
+          "m1": 10,
+          "m2": 0,
+          "m3": 0,
+          "m4": 15,
+          "m5": 0,
+          "m6": 5,
+          "bonus": 5,
+          "total": 35
+        },
+        "m3": {
+          "zones": [
+            {
+              "sector": "R-S1",
+              "truth": {
+                "TANK": 1,
+                "MISSILE": 2,
+                "AMMO_BOX": 2,
+                "DRUM": 2,
+                "MORTAR": 1
+              },
+              "reported": {
+                "TANK": 1
+              },
+              "missing": {
+                "MISSILE": 2,
+                "AMMO_BOX": 2,
+                "DRUM": 2,
+                "MORTAR": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "R-S2",
+              "truth": {
+                "MISSILE": 2,
+                "DRUM": 1,
+                "MORTAR": 2,
+                "TANK": 2,
+                "MILITARY_TRUCK": 1
+              },
+              "reported": {},
+              "missing": {
+                "MISSILE": 2,
+                "DRUM": 1,
+                "MORTAR": 2,
+                "TANK": 2,
+                "MILITARY_TRUCK": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "R-S3",
+              "truth": {
+                "AMMO_BOX": 1,
+                "TANK": 1,
+                "MILITARY_TRUCK": 4,
+                "MISSILE": 1,
+                "MORTAR": 1
+              },
+              "reported": {},
+              "missing": {
+                "AMMO_BOX": 1,
+                "TANK": 1,
+                "MILITARY_TRUCK": 4,
+                "MISSILE": 1,
+                "MORTAR": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 7
+            },
+            {
+              "sector": "CM",
+              "truth": {
+                "AMMO_BOX": 2,
+                "MORTAR": 1,
+                "MISSILE": 1,
+                "TANK": 3,
+                "MILITARY_TRUCK": 1
+              },
+              "reported": {
+                "AMMO_BOX": 1,
+                "TANK": 2
+              },
+              "missing": {
+                "AMMO_BOX": 1,
+                "MORTAR": 1,
+                "MISSILE": 1,
+                "TANK": 1,
+                "MILITARY_TRUCK": 1
+              },
+              "extra": {},
+              "exact": false,
+              "earned": 0,
+              "available": 9
+            }
+          ],
+          "truth_count": 32,
+          "reported_count": 4,
+          "missing_count": 28,
+          "extra_count": 0,
+          "exact_zones": [],
+          "score": 0
+        },
+        "source": "output/MAICON_실전정합_2026-11-13/simulator/data/evaluations/evaluation-515244953c18/match-003.json",
+        "condition_equal": {
+          "identity": true,
+          "rule_configuration": true,
+          "sensor_configuration": true,
+          "object_layout": true
+        }
+      },
+      "previous_same_model": null,
+      "score_delta_from_J": 0,
+      "m3_delta_from_J": 0,
+      "exact_replay": {
+        "status": "passed",
+        "frames": 1462,
+        "offered_observations": 1241,
+        "new_track_hits": 1003,
+        "source": "output/MAICON_검증_3경기_2026-11-14/verification/new-matches/match-03-exact-replay.json",
+        "sha256": "332da18f70e40a98517cd2f02a4dcec0af749eb96188950b4bac2f58e73985d8"
+      },
+      "limitations": [
+        "Same printed example artwork domain; not new pictures or real UGV validation.",
+        "All three use different seeds104/105/106; not three repeats of one exact layout.",
+        "Exact receipt replay verifies internal counting; actual server scoring comes from raw match export.",
+        "M1/M6 practice fixture remains; M4 survival points do not demonstrate firing accuracy."
+      ]
+    }
+  ],
+  "conclusion": "All three trials completed. Perception receipt replay passed. Match scores 35/35/35; M2 and M3 remained zero. No demonstrated scoring improvement."
+}
