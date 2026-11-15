@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """MAICON 설치와 시작. Python 3.12를 권장합니다."""
 import argparse
+from contextlib import contextmanager
+from http.client import HTTPException
+import hmac
+import signal
 import json
 import os
 from pathlib import Path
@@ -86,12 +90,40 @@ def wait_ready(process, url, *, timeout=45):
     raise RuntimeError('경기장 서버 시작 시간이 초과되었습니다. 위의 오류를 확인하세요.')
 
 
+def existing_instance(port):
+    """Reuse only a responding server with this checkout's private identity."""
+    try:
+        access=json.loads((ROOT/'data/access.json').read_text(encoding='utf-8'))
+        expected=access.get('admin_key')
+        if not isinstance(expected,str) or not expected:return False
+        with urlopen(f'http://127.0.0.1:{port}/api/config',timeout=1) as response:
+            actual=json.loads(response.read(65536)).get('admin_key')
+        return isinstance(actual,str) and hmac.compare_digest(expected,actual)
+    except (OSError,ValueError,HTTPException,AttributeError):
+        return False
+
+
+@contextmanager
+def shutdown_signals():
+    """Closing the owning terminal must also close its server and workers."""
+    def interrupt(*_):raise KeyboardInterrupt()
+    previous={}
+    for name in ('SIGTERM','SIGHUP'):
+        sig=getattr(signal,name,None)
+        if sig is not None:
+            previous[sig]=signal.signal(sig,interrupt)
+    try:
+        yield
+    finally:
+        for sig,handler in previous.items():signal.signal(sig,handler)
+
+
 def ensure_port_available(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
         try:
             probe.bind(('127.0.0.1', port))
         except OSError as exc:
-            raise RuntimeError(f'{port}번 포트를 이미 사용 중입니다. 기존 시작 창을 확인하거나 --port 8897로 실행하세요.') from exc
+            raise RuntimeError(f'{port}번 포트를 이미 사용 중입니다. 기존 시작 창을 확인하거나 --port {port+1 if port<65535 else 8887}로 실행하세요.') from exc
 
 
 def main(argv=None):
@@ -107,6 +139,11 @@ def main(argv=None):
     if not 1024 <= args.port <= 65535:
         parser.error('--port는 1024에서 65535 사이여야 합니다.')
     try:
+        if not (args.setup or args.notebook or args.check) and existing_instance(args.port):
+            url=f'http://127.0.0.1:{args.port}/welcome.html'
+            print(f'이미 실행 중인 경기장입니다: {url}\n원래 실행 창은 켜 두세요.',flush=True)
+            if not args.no_browser:webbrowser.open(url)
+            return 0
         python = runtime_python(ROOT)
         if args.setup or args.notebook:
             install(notebook=args.notebook)
@@ -121,25 +158,26 @@ def main(argv=None):
         ensure_port_available(args.port)
         subprocess.run([str(python), str(ROOT / 'seed_model.py')], cwd=ROOT, env=child_environment(), check=True)
         url = f'http://127.0.0.1:{args.port}'
-        process = subprocess.Popen([str(python), str(ROOT / 'server.py'), '--host', '127.0.0.1', '--port', str(args.port)], cwd=ROOT, env=child_environment(), start_new_session=(os.name == 'posix'))
-        try:
-            wait_ready(process, url)
-            print(f'경기장: {url}/welcome.html\n이 창을 켜 두세요. 종료하려면 Ctrl+C를 누르세요.', flush=True)
-            if not args.no_browser:
-                webbrowser.open(url + '/welcome.html')
+        with shutdown_signals():
+            process = subprocess.Popen([str(python), str(ROOT / 'server.py'), '--host', '127.0.0.1', '--port', str(args.port)], cwd=ROOT, env=child_environment(), start_new_session=(os.name == 'posix'))
             try:
-                return process.wait()
-            except KeyboardInterrupt:
-                # Windows consoles send Ctrl+C to both processes. Give the
-                # server time to close workers before the forced fallback.
-                if os.name == 'nt':
-                    try:
-                        process.wait(timeout=15)
-                    except subprocess.TimeoutExpired:
-                        pass
-                raise
-        finally:
-            stop_process(process, timeout=15)
+                wait_ready(process, url)
+                print(f'경기장: {url}/welcome.html\n이 창을 켜 두세요. 종료하려면 Ctrl+C를 누르세요.', flush=True)
+                if not args.no_browser:
+                    webbrowser.open(url + '/welcome.html')
+                try:
+                    return process.wait()
+                except KeyboardInterrupt:
+                    # Windows consoles send Ctrl+C to both processes. Give the
+                    # server time to close workers before the forced fallback.
+                    if os.name == 'nt':
+                        try:
+                            process.wait(timeout=15)
+                        except subprocess.TimeoutExpired:
+                            pass
+                    raise
+            finally:
+                stop_process(process, timeout=15)
     except KeyboardInterrupt:
         print('\n경기장을 종료했습니다.')
         return 0

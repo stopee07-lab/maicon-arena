@@ -18,6 +18,29 @@ class PortableLaunch(unittest.TestCase):
         self.assertIsNotNone(importlib.util.find_spec(name), f'{name} must be provided')
         return __import__(name)
 
+    def test_existing_instance_requires_same_local_access(self):
+        import io,json
+        launch=self.module('launch')
+        with tempfile.TemporaryDirectory() as directory, patch.object(launch,'ROOT',Path(directory)):
+            access=Path(directory)/'data/access.json';access.parent.mkdir();access.write_text(json.dumps({'admin_key':'same-key'}))
+            for key,expected in [('same-key',True),('another-key',False)]:
+                with patch.object(launch,'urlopen',return_value=io.BytesIO(json.dumps({'admin_key':key}).encode())):
+                    self.assertEqual(launch.existing_instance(12345),expected)
+
+    def test_repeat_launch_opens_existing_instance_without_new_process(self):
+        launch=self.module('launch')
+        with patch.object(launch,'existing_instance',return_value=True), patch.object(launch.webbrowser,'open') as browser, patch.object(launch.subprocess,'Popen') as popen:
+            self.assertEqual(launch.main(['--port','12345']),0)
+            browser.assert_called_once_with('http://127.0.0.1:12345/welcome.html')
+            popen.assert_not_called()
+
+    def test_shutdown_signal_interrupts_then_restores_handlers(self):
+        import signal
+        launch=self.module('launch');before=signal.getsignal(signal.SIGTERM)
+        with launch.shutdown_signals():
+            with self.assertRaises(KeyboardInterrupt):signal.getsignal(signal.SIGTERM)(signal.SIGTERM,None)
+        self.assertEqual(signal.getsignal(signal.SIGTERM),before)
+
     def test_windows_and_posix_venv_paths(self):
         r = self.module('runtime_paths')
         root = Path('/project')
