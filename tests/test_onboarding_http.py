@@ -22,7 +22,7 @@ class OnboardingHTTPTests(unittest.TestCase):
         web = self.root / 'web'
         web.mkdir()
         self.web_content = {}
-        for name in ('welcome.html', 'workbench.html', 'api-check.html'):
+        for name in ('workbench.html',):
             content = (Path(server.__file__).parent / 'web' / name).read_bytes()
             self.web_content[name] = content
             (web / name).write_bytes(content)
@@ -131,8 +131,8 @@ class OnboardingHTTPTests(unittest.TestCase):
         self.assertNotIn(payload.decode(), json.dumps(row))
 
     def test_home_and_legacy_run_page_route_to_their_real_html(self):
-        for path, filename in (('/', 'welcome.html'), ('/?page=run', 'workbench.html'),
-                               ('/?page=develop', 'workbench.html'), ('/api-check.html', 'api-check.html')):
+        for path, filename in (('/', 'workbench.html'), ('/?page=run', 'workbench.html'),
+                               ('/?page=develop', 'workbench.html')):
             with self.subTest(path=path):
                 self.assertEqual(self.request(path), (200, self.web_content[filename]))
         self.assertEqual(self.audit()['rows'], [])

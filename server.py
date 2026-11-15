@@ -558,7 +558,7 @@ class Handler(BaseHTTPRequestHandler):
                     else:raise APIError(404,'알 수 없는 로봇 경로')
                 self._send(200,result);return
             if path.startswith('/api/') or path.startswith('/sim/') or post:raise APIError(404,'알 수 없는 경로')
-            root=(ROOT/'web').resolve();relative=unquote(path).lstrip('/') or ('workbench.html' if 'page' in args else 'welcome.html');file=(root/relative).resolve()
+            root=(ROOT/'web').resolve();relative=unquote(path).lstrip('/') or 'workbench.html';file=(root/relative).resolve()
             if not file.is_relative_to(root) or not file.is_file():raise APIError(404,'파일이 없습니다')
             if file.suffix.lower() not in ('.html','.js','.css','.json','.png','.jpg','.jpeg','.svg','.ico','.woff2','.glb','.map'):raise APIError(403,'허용되지 않은 파일 형식')
             mime=mimetypes.guess_type(file.name)[0] or 'application/octet-stream'

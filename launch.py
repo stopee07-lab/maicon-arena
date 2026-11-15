@@ -140,7 +140,7 @@ def main(argv=None):
         parser.error('--port는 1024에서 65535 사이여야 합니다.')
     try:
         if not (args.setup or args.notebook or args.check) and existing_instance(args.port):
-            url=f'http://127.0.0.1:{args.port}/welcome.html'
+            url=f'http://127.0.0.1:{args.port}/?page=run'
             print(f'이미 실행 중인 경기장입니다: {url}\n원래 실행 창은 켜 두세요.',flush=True)
             if not args.no_browser:webbrowser.open(url)
             return 0
@@ -162,9 +162,9 @@ def main(argv=None):
             process = subprocess.Popen([str(python), str(ROOT / 'server.py'), '--host', '127.0.0.1', '--port', str(args.port)], cwd=ROOT, env=child_environment(), start_new_session=(os.name == 'posix'))
             try:
                 wait_ready(process, url)
-                print(f'경기장: {url}/welcome.html\n이 창을 켜 두세요. 종료하려면 Ctrl+C를 누르세요.', flush=True)
+                print(f'경기장: {url}/?page=run\n이 창을 켜 두세요. 종료하려면 Ctrl+C를 누르세요.', flush=True)
                 if not args.no_browser:
-                    webbrowser.open(url + '/welcome.html')
+                    webbrowser.open(url + '/?page=run')
                 try:
                     return process.wait()
                 except KeyboardInterrupt:

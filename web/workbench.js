@@ -34,7 +34,7 @@ async function pollStatus(){try{await refreshStatus()}catch(e){setConnection(fal
 function labelForStatus(status){return statusNames[status]||status||'확인 전'}
 function statusClass(status){return ['succeeded','ready','observing'].includes(status)?'good':['failed','interrupted'].includes(status)?'bad':['running','starting','loading','queued','cancelling'].includes(status)?'warn':''}
 function physicsReady(){return !!(S.physics?.connected&&S.physics.runtime===S.runtime)}
-function switchPage(page,updateURL=true){if(!['develop','data','train','evaluate','deploy','run','equipment'].includes(page))page='develop';S.page=page;const simpleRun=page==='run'&&new URLSearchParams(location.search).get('view')!=='advanced';document.body.classList.toggle('easy-run',simpleRun);$('#run-view-toggle').textContent=simpleRun?'자세한 조작 보기':'간단히 보기';$('#run-view-toggle').href=simpleRun?'/?page=run&view=advanced':'/?page=run';recording?.onPage(page);if(updateURL){const url=new URL(location.href);url.searchParams.set('page',page);history.replaceState(null,'',url);}$$('[data-page]').forEach(el=>el.classList.toggle('active',el.dataset.page===page));$$('[data-workspace-page]').forEach(el=>{el.hidden=el.dataset.workspacePage!==page;el.classList.toggle('active',!el.hidden)});if(page==='run'){ensureScene();S.scene?.resize();refreshRuntime();refreshCameras()}if(page==='evaluate'&&S.modelId)loadModel(S.modelId);if(page==='equipment')renderCapabilities();if(page==='develop'||page==='deploy')development?.enter();window.scrollTo({top:0,behavior:'instant'})}
+function switchPage(page,updateURL=true){if(!['develop','data','train','evaluate','deploy','run','equipment'].includes(page))page='develop';S.page=page;recording?.onPage(page);if(updateURL){const url=new URL(location.href);url.searchParams.set('page',page);history.replaceState(null,'',url);}$$('[data-page]').forEach(el=>el.classList.toggle('active',el.dataset.page===page));$$('[data-workspace-page]').forEach(el=>{el.hidden=el.dataset.workspacePage!==page;el.classList.toggle('active',!el.hidden)});if(page==='run'){ensureScene();S.scene?.resize();refreshRuntime();refreshCameras()}if(page==='evaluate'&&S.modelId)loadModel(S.modelId);if(page==='equipment')renderCapabilities();if(page==='develop'||page==='deploy')development?.enter();window.scrollTo({top:0,behavior:'instant'})}
 function setOptions(id,items,placeholder,value){const select=$(id),sig=JSON.stringify(items);if(select.dataset.options!==sig){const old=value||select.value;select.innerHTML=`<option value="">${esc(placeholder)}</option>`+items.map(x=>`<option value="${esc(x.id)}">${esc(x.name||x.id)}</option>`).join('');select.value=items.some(x=>x.id===old)?old:'';select.dataset.options=sig;}}
 function renderStatus(status){renderPhysics();renderCapabilities();const datasets=status.datasets||[],models=status.models||[];setOptions('#dataset-select',datasets,'데이터셋 선택',S.datasetId);for(const id of ['#train-dataset','#eval-dataset'])setOptions(id,datasets.filter(d=>d.frozen),'고정한 데이터셋 선택');for(const id of ['#eval-model','#deploy-model'])setOptions(id,models,'모델 선택',S.modelId);
   if(!S.datasetId&&datasets.length)loadDataset(datasets[0].id);if(!S.modelId&&models.length)selectModel(models[0].id);
@@ -149,12 +149,3 @@ function renderRunNotice(){
 }
 
 $('#opponent-difficulty').addEventListener('change',()=>act('difficulty',$('#opponent-difficulty'),async()=>{await api(admin('control'),{method:'POST',body:{action:'difficulty',value:Number($('#opponent-difficulty').value)}});flash('다른 5대의 난이도를 변경했습니다. 속도·체력·채점은 그대로입니다.');await refreshRuntime();}));
-
-$('#export-run').addEventListener('click',()=>act('export',$('#export-run'),async()=>{
- const runtime=S.runtime;
- const saved=await api(admin('export'),{signal:AbortSignal.timeout(60000)});
- saved._review_provenance={source:'운영 화면에서 저장한 '+runtime+' 기록',note:'상태·경로 기록입니다. 여러 코드 실행이 포함될 수 있어 코드·모델 추적은 별도 실험 원본을 확인하세요.'};
- const blob=new Blob([JSON.stringify(saved)],{type:'application/json'});const url=URL.createObjectURL(blob);
- const link=document.createElement('a');link.href=url;link.download='maicon-'+runtime+'-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
- flash('기록 파일을 내려받았습니다. 기록 비교 화면에서 열어 보세요.');
-}));

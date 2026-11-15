@@ -31,7 +31,7 @@ class PortableLaunch(unittest.TestCase):
         launch=self.module('launch')
         with patch.object(launch,'existing_instance',return_value=True), patch.object(launch.webbrowser,'open') as browser, patch.object(launch.subprocess,'Popen') as popen:
             self.assertEqual(launch.main(['--port','12345']),0)
-            browser.assert_called_once_with('http://127.0.0.1:12345/welcome.html')
+            browser.assert_called_once_with('http://127.0.0.1:12345/?page=run')
             popen.assert_not_called()
 
     def test_shutdown_signal_interrupts_then_restores_handlers(self):
