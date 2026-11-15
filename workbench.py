@@ -26,6 +26,7 @@ import uuid
 from collections import Counter, defaultdict
 from PIL import Image
 from development import CodeStore, DevelopmentError
+from runtime_paths import runtime_python
 
 JSON_TYPE='application/json; charset=utf-8'
 TERMINAL={'succeeded','failed','cancelled','interrupted'}
@@ -106,7 +107,7 @@ class Workbench:
         self.root=Path(root).resolve();self.store=self.root/'data'/'workbench'
         self.code_store=CodeStore(self.root)
         self.capture_frame=capture_frame;self.runtime_status=runtime_status
-        self.python=Path(python_path) if python_path else self.root/'training'/'.venv'/'bin'/'python'
+        self.python=Path(python_path) if python_path else runtime_python(self.root)
         self.lock=threading.RLock();self.stopping=threading.Event();self.pending=queue.Queue()
         self.cancel_events={};self.processes={};self.jobs={};self.controller_process=None;self.controller_directory=None
         self.capabilities={'python':str(self.python),'torch':None,'ultralytics':None,'mps':None,'cpu':self.python.is_file(),'physics':None,'status':'checking' if probe else 'not_probed'}

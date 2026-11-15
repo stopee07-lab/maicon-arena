@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-16",
+  "mac": {
+    "installation": "reused existing runtime through MAICON_PYTHON",
+    "python": "3.14.5",
+    "mujoco": "3.17.0",
+    "torch": "2.15.0",
+    "checks": [
+      "MuJoCo 64x64 rendered image",
+      "launcher server 18488 welcome HTTP 200",
+      "physical worker 11 frames",
+      "Ctrl+C launcher exit 0 and closed listener",
+      "Jupyter 18907 start and HTTP shutdown exit 0"
+    ]
+  },
+  "linux": {
+    "architecture": "aarch64",
+    "image": "python:3.12-slim",
+    "image_digest": "sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b",
+    "installation": "new venv from requirements.txt, official PyTorch CPU index first",
+    "python": "3.12.16",
+    "mujoco": "3.17.0",
+    "torch": "2.15.0+cpu",
+    "checks": [
+      "11 portable tests passed",
+      "MuJoCo OSMesa 64x64 rendered image"
+    ],
+    "exit_code": 0,
+    "container_removed": true
+  },
+  "limits": [
+    "Windows not actually run",
+    "Linux x86_64 not actually run",
+    "GitHub OS matrix added but not run",
+    "No physical robot or scoring-strategy validation implied"
+  ],
+  "failed_attempt": {
+    "file": "linux-default-pypi-aborted.log",
+    "reason": "Stopped unnecessary large CUDA dependency downloads; installer changed to CPU index and fresh retry passed"
+  }
+}

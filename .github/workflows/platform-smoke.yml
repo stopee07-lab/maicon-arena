@@ -1,0 +1,28 @@
+name: OS installation and camera smoke test
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  simulator:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Linux rendering libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libosmesa6 libgl1 libglib2.0-0
+      - name: Install in the local virtual environment
+        run: python launch.py --setup
+      - name: Portable launcher tests
+        run: python -m unittest discover -s tests -p test_portable_launch.py
+      - name: Import packages and render a MuJoCo camera
+        run: python launch.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installed-packages-${{ runner.os }}
+          path: runtime/installed-packages-*.txt

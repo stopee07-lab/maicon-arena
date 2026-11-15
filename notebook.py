@@ -3,7 +3,6 @@ import json
 import os
 from pathlib import Path
 import secrets
-import signal
 import socket
 import subprocess
 import threading
@@ -11,6 +10,7 @@ import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
+from runtime_paths import runtime_python, stop_process
 
 
 class NotebookError(Exception):
@@ -24,7 +24,7 @@ class Notebook:
         self.root = Path(root).resolve()
         self.workspace = self.root / 'workspace'
         self.store = self.root / 'data' / 'workbench' / 'jupyter'
-        self.python = str(python_path or self.root / 'training/.venv/bin/python')
+        self.python = str(python_path or runtime_python(self.root))
         self.port = int(port)
         self.process = None
         self.started_at = None
@@ -45,9 +45,9 @@ class Notebook:
             )
             self.versions = json.loads(result.stdout.strip())
             self.available = True
-            self.detail = 'Mac의 실제 Python 편집기·노트북·터미널을 엽니다.'
+            self.detail = '이 컴퓨터의 Python 편집기·노트북·터미널을 엽니다.'
         except (OSError, subprocess.SubprocessError, ValueError):
-            self.detail = 'training/.venv에 JupyterLab과 ipykernel을 설치해야 합니다.'
+            self.detail = 'JupyterLab 추가 설치가 필요합니다. python launch.py --setup --notebook을 실행하세요.'
 
     def _prepare(self):
         self.workspace.mkdir(parents=True, exist_ok=True)
@@ -78,7 +78,7 @@ class Notebook:
         kernel_dir.mkdir(parents=True, exist_ok=True)
         kernel = {
             'argv': [self.python, '-m', 'ipykernel_launcher', '-f', '{connection_file}'],
-            'display_name': 'MAICON · Mac Python', 'language': 'python',
+            'display_name': 'MAICON · Python', 'language': 'python',
             'env': {'YOLO_CONFIG_DIR': str(self.root / 'data/workbench/yolo-config')},
         }
         (kernel_dir / 'kernel.json').write_text(json.dumps(kernel, ensure_ascii=False, indent=2))
@@ -107,7 +107,7 @@ class Notebook:
                 'available': self.available, 'running': bool(running), 'starting': alive and not running,
                 'url': url, 'port': self.port, 'python': self.python,
                 'workspace_path': str(self.workspace), 'versions': dict(self.versions),
-                'runtime': 'Mac Python · 로컬 HTTP 어댑터', 'detail': self.detail,
+                'runtime': 'Python · 로컬 HTTP 어댑터', 'detail': self.detail,
                 'pid': self.process.pid if alive else None,
             }
 
@@ -145,7 +145,7 @@ class Notebook:
             self.process = subprocess.Popen(
                 [self.python, '-m', 'jupyterlab', '--config', str(config_path)],
                 cwd=self.workspace, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                text=True, bufsize=1, start_new_session=True,
+                text=True, bufsize=1, start_new_session=(os.name == 'posix'),
             )
             self.started_at = time.time()
             self.log_thread = threading.Thread(target=self._drain_log, args=(self.process,), daemon=True)
@@ -156,7 +156,7 @@ class Notebook:
                     self.detail = 'JupyterLab 시작에 실패했습니다. data/workbench/jupyter/server.log를 확인하세요.'
                     raise NotebookError(503, self.detail)
                 if self._ready():
-                    self.detail = 'Mac의 실제 Python 편집기·노트북·터미널이 실행 중입니다.'
+                    self.detail = '이 컴퓨터의 Python 편집기·노트북·터미널이 실행 중입니다.'
                     break
                 time.sleep(.2)
             return self.status()
@@ -165,17 +165,14 @@ class Notebook:
         with self.lock:
             process = self.process
             if process and process.poll() is None:
+                # HTTP shutdown lets Jupyter close its kernels on Windows too.
                 try:
-                    os.killpg(process.pid, signal.SIGTERM)
-                    process.wait(timeout=5)
-                except ProcessLookupError:
-                    pass
-                except subprocess.TimeoutExpired:
-                    try:
-                        os.killpg(process.pid, signal.SIGKILL)
-                    except ProcessLookupError:
+                    request = Request(f'http://127.0.0.1:{self.port}/api/shutdown', data=b'', method='POST', headers={'Authorization': 'token ' + (self.token or '')})
+                    with urlopen(request, timeout=2):
                         pass
-                    process.wait(timeout=3)
+                    process.wait(timeout=5)
+                except (OSError, URLError, HTTPError, subprocess.TimeoutExpired):
+                    stop_process(process)
             self.process = None
             if self.log_thread:
                 self.log_thread.join(timeout=1)

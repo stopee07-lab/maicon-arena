@@ -4,10 +4,11 @@ import base64,json,os,queue,subprocess,threading,time,uuid
 from pathlib import Path
 from engine import APIError
 from physics_world import build_world
+from runtime_paths import runtime_python, physics_environment
 
 class Physics:
     def __init__(self,server,root):
-        self.server=server;self.root=Path(root);self.python=self.root/'training/.venv/bin/python'
+        self.server=server;self.root=Path(root);self.python=runtime_python(self.root)
         self.lock=threading.RLock();self.process=None;self.engine=None;self.runtime=None
         self.last=0.;self.started_at=0.;self.error=None;self.warning=None;self.lag_seconds=0.;self.frames={};self.sim_time=0.;self.seq=0;self.pending=queue.Queue();self.requests={};self.generation=0;self.last_generation=None
         self.requested_cameras={}
@@ -34,7 +35,7 @@ class Physics:
         config_path=self.directory/'worker.json';config_path.write_text(json.dumps(config));config_path.chmod(0o600)
         self.started_at=time.monotonic()
         with (self.directory/'worker.log').open('w') as log:
-            self.process=subprocess.Popen([str(self.python),str(self.root/'physics_worker.py'),'--config',str(config_path)],cwd=self.root,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,env={**os.environ,'PYTHONUNBUFFERED':'1','OMP_NUM_THREADS':'2'})
+            self.process=subprocess.Popen([str(self.python),str(self.root/'physics_worker.py'),'--config',str(config_path)],cwd=self.root,stdout=log,stderr=subprocess.STDOUT,start_new_session=(os.name=='posix'),env=physics_environment())
         return self.status()
     def stop(self):
         process=self.process

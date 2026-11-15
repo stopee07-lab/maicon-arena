@@ -1,0 +1,9 @@
+# Portable direct dependencies. Python 3.12 recommended; CPU works on all OSes.
+# requirements.lock.txt is the historical Mac snapshot, not a team installer.
+mujoco>=3.3,<4
+numpy>=1.26,<3
+Pillow>=10,<14
+opencv-python>=4.10,<6
+-r requirements-torch.txt
+ultralytics>=8.4,<9
+psutil>=5.9,<8

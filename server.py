@@ -23,6 +23,7 @@ from engine import Engine, APIError, DT, KST, invalid
 ROOT=Path(__file__).resolve().parent
 VERSION='maicon-fidelity/3.0'
 import fidelity_settings
+from api_audit import APIAudit
 
 
 def load_access(path):
@@ -79,6 +80,7 @@ class SimulationHTTPServer(ThreadingHTTPServer):
         self.stopping=threading.Event()
         super().__init__(address,Handler)
         self.access=access;self.engine=engine or Engine(teams=access['teams']);self.stopping=threading.Event()
+        self.api_audit=APIAudit(secrets=[access['admin_key'],access['viewer_key'],*(t['mission_code'] for t in access['teams'])])
         self.local_bind=address[0] in ('127.0.0.1','localhost','::1')
         self.tick_error=None
         self.rehearsal=Engine(teams=access['teams']);self.rehearsal.rehearsal_mode=True
@@ -331,6 +333,8 @@ class Handler(BaseHTTPRequestHandler):
         print(f'{self.client_address[0]} {self.command} {urlparse(self.path).path} {args[1] if len(args)>1 else ""}',flush=True)
 
     def _send(self,status,data,content_type='application/json; charset=utf-8',headers=None):
+        self.server.api_audit.record(getattr(self,'_audit_context',None),status,data,content_type)
+        self._audit_context=None
         if not isinstance(data,bytes):data=json.dumps(data,ensure_ascii=False,allow_nan=False).encode()
         self.send_response(status);self.send_header('Content-Type',content_type);self.send_header('Content-Length',str(len(data)))
         self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff')
@@ -373,13 +377,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):self._send(405,{'detail':'Cross-origin API access is disabled; use this local origin or a local Python client'})
 
     def _dispatch(self,post):
+        self._audit_context=None
         try:
             parsed=urlparse(self.path);path=parsed.path.rstrip('/') or '/';query=parse_qs(parsed.query)
             args={k:v[-1] for k,v in query.items()};e=self.server.engine
             if path=='/api/recordings' or path.startswith('/api/recordings/'):
                 from recordings import handle_recording_request
                 handle_recording_request(self,post,path);return
+            self._audit_context=self.server.api_audit.begin(self.command,self.path,args,phase=e.phase)
             body=self._body() if post else {}
+            self._audit_context=self.server.api_audit.begin(self.command,self.path,args,body,phase=e.phase)
             if path=='/api/subgame':
                 self._auth()
                 if post:
@@ -491,7 +498,8 @@ class Handler(BaseHTTPRequestHandler):
                 if path=='/api/admin/control' and post:self._send(200,self.server.control_runtime(e,body));return
                 if post:raise APIError(404,'알 수 없는 운영 경로')
                 with e.lock:
-                    if path=='/api/admin/state':result=self.server.runtime_snapshot(e)
+                    if path=='/api/admin/api-audit':result=self.server.api_audit.snapshot()
+                    elif path=='/api/admin/state':result=self.server.runtime_snapshot(e)
                     elif path=='/api/admin/events':result=e.events
                     elif path=='/api/admin/export':result=e.export()
                     elif path=='/api/admin/training-frame':
@@ -550,7 +558,7 @@ class Handler(BaseHTTPRequestHandler):
                     else:raise APIError(404,'알 수 없는 로봇 경로')
                 self._send(200,result);return
             if path.startswith('/api/') or path.startswith('/sim/') or post:raise APIError(404,'알 수 없는 경로')
-            root=(ROOT/'web').resolve();relative=unquote(path).lstrip('/') or 'workbench.html';file=(root/relative).resolve()
+            root=(ROOT/'web').resolve();relative=unquote(path).lstrip('/') or ('workbench.html' if 'page' in args else 'welcome.html');file=(root/relative).resolve()
             if not file.is_relative_to(root) or not file.is_file():raise APIError(404,'파일이 없습니다')
             if file.suffix.lower() not in ('.html','.js','.css','.json','.png','.jpg','.jpeg','.svg','.ico','.woff2','.glb','.map'):raise APIError(403,'허용되지 않은 파일 형식')
             mime=mimetypes.guess_type(file.name)[0] or 'application/octet-stream'
