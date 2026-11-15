@@ -158,11 +158,15 @@ def main(argv=None):
         ensure_port_available(args.port)
         subprocess.run([str(python), str(ROOT / 'seed_model.py')], cwd=ROOT, env=child_environment(), check=True)
         url = f'http://127.0.0.1:{args.port}'
-        with shutdown_signals():
-            process = subprocess.Popen([str(python), str(ROOT / 'server.py'), '--host', '127.0.0.1', '--port', str(args.port)], cwd=ROOT, env=child_environment(), start_new_session=(os.name == 'posix'))
+        log_path=ROOT/'runtime'/f'server-{args.port}-{time.time_ns()}.log'
+        log_path.parent.mkdir(exist_ok=True)
+        print(f'실행 기록: {log_path}',flush=True)
+        with shutdown_signals(), log_path.open('a',encoding='utf-8') as log:
+            process = subprocess.Popen([str(python), str(ROOT / 'server.py'), '--host', '127.0.0.1', '--port', str(args.port),'--watch-launcher'], cwd=ROOT, env=child_environment(), start_new_session=(os.name == 'posix'),stdin=subprocess.PIPE,stdout=log,stderr=subprocess.STDOUT)
             try:
-                wait_ready(process, url)
-                print(f'경기장: {url}/?page=run\n이 창을 켜 두세요. 종료하려면 Ctrl+C를 누르세요.', flush=True)
+                try:wait_ready(process, url)
+                except RuntimeError as exc:raise RuntimeError(f'{exc} 실행 기록: {log_path}') from exc
+                print(f'경기장: {url}/?page=run\n이 실행 창을 닫으면 경기장도 함께 종료됩니다. Ctrl+C로도 종료할 수 있습니다.', flush=True)
                 if not args.no_browser:
                     webbrowser.open(url + '/?page=run')
                 try:
@@ -177,7 +181,10 @@ def main(argv=None):
                             pass
                     raise
             finally:
-                stop_process(process, timeout=15)
+                # Closing the lifetime pipe also asks the server to clean up.
+                if process.stdin:process.stdin.close()
+                try:process.wait(timeout=15)
+                except subprocess.TimeoutExpired:stop_process(process, timeout=5)
     except KeyboardInterrupt:
         print('\n경기장을 종료했습니다.')
         return 0

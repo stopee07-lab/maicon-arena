@@ -2,6 +2,7 @@
 """Local stdlib HTTP runtime. Official-style API + isolated simulation adapter."""
 from __future__ import annotations
 import argparse
+import _thread
 import hmac
 import io
 import ipaddress
@@ -12,6 +13,7 @@ from pathlib import Path
 import secrets
 import signal
 import string
+import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -603,6 +605,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--host',default='127.0.0.1');parser.add_argument('--port',type=int,default=8887)
     parser.add_argument('--seed',type=int,default=20261112);parser.add_argument('--access-file',default=str(ROOT/'data'/'access.json'))
+    parser.add_argument('--watch-launcher',action='store_true',help=argparse.SUPPRESS)
     args=parser.parse_args();access=load_access(args.access_file)
     server=SimulationHTTPServer((args.host,args.port),access,Engine(args.seed,access['teams']),enable_workbench=True)
     settings=fidelity_settings.read(ROOT)
@@ -610,7 +613,15 @@ def main():
     server.start_engine();print(f'Local MAICON simulator: http://{args.host}:{server.server_port} (simulation only)',flush=True)
     print(f'Access keys stored locally: {Path(args.access_file).resolve()}; no credentials in logs',flush=True)
     signal.signal(signal.SIGTERM,lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
-    try:server.serve_forever(poll_interval=.2)
+    def watch_launcher():
+        # The launcher's pipe closes even if its window force-kills it.
+        try:
+            while sys.stdin.buffer.read(1):pass
+        finally:
+            _thread.interrupt_main()
+    try:
+        if args.watch_launcher:threading.Thread(target=watch_launcher,name='launcher-lifetime',daemon=True).start()
+        server.serve_forever(poll_interval=.2)
     except KeyboardInterrupt:pass
     finally:server.stopping.set();server.server_close()
 
