@@ -120,6 +120,8 @@ def shutdown_signals():
 
 def ensure_port_available(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        # Match the HTTP server's allow_reuse_address for recently closed sockets.
+        probe.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
         try:
             probe.bind(('127.0.0.1', port))
         except OSError as exc:

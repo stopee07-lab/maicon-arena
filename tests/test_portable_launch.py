@@ -100,6 +100,16 @@ class PortableLaunch(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, '이미 사용'):
                 launch.ensure_port_available(listener.getsockname()[1])
 
+    def test_recently_closed_listener_can_be_reused(self):
+        launch=self.module('launch')
+        with socket.socket() as listener:
+            listener.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+            listener.bind(('127.0.0.1',0));port=listener.getsockname()[1];listener.listen()
+            client=socket.create_connection(('127.0.0.1',port))
+            accepted,_=listener.accept();accepted.shutdown(socket.SHUT_WR)
+            self.assertEqual(client.recv(1),b'');client.close();accepted.close()
+        launch.ensure_port_available(port)
+
     def test_launcher_uses_utf8_for_windows_child_files(self):
         launch = self.module('launch')
         with patch.dict(os.environ, {'PYTHONUTF8':'0'}):
