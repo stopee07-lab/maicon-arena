@@ -3,6 +3,8 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   simulator:
     timeout-minutes: 25
+    env:
+      PYTHONUTF8: '1'
     strategy:
       fail-fast: false
       matrix:
@@ -21,8 +23,13 @@ jobs:
       - name: Portable launcher tests
         run: python -m unittest discover -s tests -p test_portable_launch.py
       - name: Import packages and render a MuJoCo camera
+        if: runner.os != 'macOS'
         run: python launch.py --check
+      - name: macOS packages (hosted ARM runner has no CGL pixel format)
+        if: runner.os == 'macOS'
+        run: python -c "import subprocess; from runtime_paths import runtime_python; from pathlib import Path; subprocess.run([str(runtime_python(Path.cwd())), '-c', 'import mujoco, torch, ultralytics'], check=True)"
       - name: Actual model, physics and match lifecycle
+        if: runner.os != 'macOS'
         run: python platform_smoke.py
       - uses: actions/upload-artifact@v4
         if: always()

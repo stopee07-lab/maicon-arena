@@ -129,6 +129,11 @@ def ensure_port_available(port):
 
 
 def main(argv=None):
+    # Direct PowerShell/CI invocation may use a legacy non-Korean code page.
+    # start.cmd already enables UTF-8, but the Python entry point must work too.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8', errors='backslashreplace')
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--setup', action='store_true', help='필요한 Python 패키지 설치 후 종료')
     parser.add_argument('--notebook', action='store_true', help='설치할 때 JupyterLab도 추가')

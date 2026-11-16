@@ -14,6 +14,13 @@ sys.path.insert(0, str(ROOT))
 
 
 class PortableLaunch(unittest.TestCase):
+    def test_korean_help_with_legacy_console_encoding(self):
+        env = dict(os.environ, PYTHONIOENCODING='cp1252', PYTHONUTF8='0')
+        result = subprocess.run([sys.executable, str(ROOT/'launch.py'), '--help'],
+                                env=env, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode('utf-8', 'replace'))
+        self.assertIn('MAICON', result.stdout.decode('utf-8'))
+
     def module(self, name):
         self.assertIsNotNone(importlib.util.find_spec(name), f'{name} must be provided')
         return __import__(name)
