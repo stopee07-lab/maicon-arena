@@ -57,7 +57,9 @@ def main():
             assert launch['controller']['code_integrity'] and launch['physics']['connected']
             initial = api('/api/admin/state')
             origins = {r['slot']: (r['x'], r['y']) for r in initial['robots']}
-            deadline = time.monotonic() + 90
+            # Software-rendered CI cameras can run far below real time.
+            # Keep the same eight simulated seconds and movement assertion.
+            deadline = time.monotonic() + 300
             while time.monotonic() < deadline:
                 state = api('/api/admin/state')
                 assert not state['paused'], 'Unexpected automatic pause'
@@ -65,7 +67,7 @@ def main():
                     break
                 time.sleep(.3)
             else:
-                raise RuntimeError('Match clock did not advance')
+                raise RuntimeError('Match did not reach eight simulated seconds within 300 wall seconds')
             distances = {r['slot']: ((r['x']-origins[r['slot']][0])**2 +
                 (r['y']-origins[r['slot']][1])**2)**.5 for r in state['robots']}
             assert distances['B-1'] > .03, 'Participant robot did not move'
@@ -76,8 +78,13 @@ def main():
             time.sleep(.5)
             assert api('/api/admin/state')['elapsed'] == paused
             api('/api/admin/control', {'action': 'resume'})
-            time.sleep(1)
-            assert api('/api/admin/state')['elapsed'] > paused
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline:
+                if api('/api/admin/state')['elapsed'] > paused:
+                    break
+                time.sleep(.3)
+            else:
+                raise AssertionError('Match did not resume within 60 wall seconds')
             stopped = api('/api/development/stop', {})
             assert stopped['runtimes']['mission']['phase'] == 'finished'
             assert not stopped['physics']['running']
