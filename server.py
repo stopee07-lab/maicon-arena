@@ -258,6 +258,9 @@ class SimulationHTTPServer(ThreadingHTTPServer):
                     if time.monotonic()>=deadline:
                         raise APIError(503,'모델 로드 또는 참가 코드 준비 응답을 확인하지 못했습니다. 실행을 중지했습니다. 로그를 확인하세요')
                     time.sleep(.1)
+                # Model initialization may outlast the last camera heartbeat.
+                # Recheck on a fresh frame before the normal start safety gate.
+                self.wait_for_physics(ticket)
                 with self.execution_request_lock:
                     self.check_execution_ticket(ticket)
                     if runtime=='practice':engine.control({'action':'resume'})

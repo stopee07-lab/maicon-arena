@@ -1,7 +1,30 @@
 import unittest,tempfile,subprocess,sys,time,json,os,signal
 from pathlib import Path
 from controller_recovery import stop_owned_controllers
+from unittest.mock import patch
 class RecoveryTests(unittest.TestCase):
+ def test_supervised_child_recovery_without_unix_uid_api(self):
+  import psutil
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);dep=root/'data/workbench/deployments/deployment-fixture';code=dep/'code';code.mkdir(parents=True);out=root/'data/workbench/controllers/controller-fixture';out.mkdir(parents=True);weights=dep/'weights.pt';weights.write_bytes(b'x')
+   script=code/'team_node.py';script.write_text('# participant\n')
+   (code/'participant_supervisor.py').write_text('def run_participant():\n import time\n time.sleep(30)\n')
+   launcher=('import sys; sys.path.insert(0, '+repr(str(code.resolve()))+'); from participant_supervisor import run_participant; run_participant()')
+   started=time.time();proc=subprocess.Popen([sys.executable,'-c',launcher,'--server','http://fixture','--output',str(out),'--weights',str(weights)],stdin=subprocess.DEVNULL)
+   (out/'launch.json').write_text(json.dumps(dict(output_dir=str(out),deployment_id=dep.name,code_path=str(script),pid=999999,started_at=started)))
+   born=psutil.Process(proc.pid).create_time()
+   try:
+    with patch.object(psutil.Process,'uids',side_effect=AttributeError('Windows has no uids'),create=True):
+     event=dict(event='child_spawned',child_pid=proc.pid,child_create_time=born-10,entrypoint=str(script))
+     (out/'supervisor.jsonl').write_text(json.dumps(event)+'\n')
+     self.assertEqual(stop_owned_controllers(root,'http://fixture',sys.executable)['stopped'],[])
+     self.assertIsNone(proc.poll())
+     event['child_create_time']=born;(out/'supervisor.jsonl').write_text(json.dumps(event)+'\n')
+     result=stop_owned_controllers(root,'http://fixture',sys.executable);proc.wait(3)
+     self.assertIn(str(out.resolve()),result['stopped']);self.assertEqual(result['remaining'],[])
+   finally:
+    if proc.poll() is None:proc.kill();proc.wait()
+
  def test_orphan_participant_is_verified_and_killed(self):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);dep=root/'data/workbench/deployments/deployment-fixture';code=dep/'code';code.mkdir(parents=True);out=root/'data/workbench/controllers/controller-fixture';out.mkdir(parents=True);weights=dep/'weights.pt';weights.write_bytes(b'x')
