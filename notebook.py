@@ -41,7 +41,7 @@ class Notebook:
         try:
             result = subprocess.run(
                 [self.python, '-c', 'import importlib.metadata as m; import jupyterlab, ipykernel; import json; print(json.dumps({k:m.version(k) for k in ("jupyterlab","jupyter-server","ipykernel")}))'],
-                capture_output=True, text=True, timeout=15, check=True,
+                stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=15, check=True,
             )
             self.versions = json.loads(result.stdout.strip())
             self.available = True
@@ -144,7 +144,7 @@ class Notebook:
             # The token stays in a private config file, never command-line arguments.
             self.process = subprocess.Popen(
                 [self.python, '-m', 'jupyterlab', '--config', str(config_path)],
-                cwd=self.workspace, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                cwd=self.workspace, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 text=True, bufsize=1, start_new_session=(os.name == 'posix'),
             )
             self.started_at = time.time()

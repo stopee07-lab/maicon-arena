@@ -34,8 +34,11 @@ class Physics:
         config=dict(server=f'http://127.0.0.1:{self.server.server_port}',admin_key=self.server.access['admin_key'],generation=self.generation,world=str(self.directory/'arena.xml'),panels=panels,robots=snapshot['robots'],environment=snapshot['arena'].get('environment',{}))
         config_path=self.directory/'worker.json';config_path.write_text(json.dumps(config));config_path.chmod(0o600)
         self.started_at=time.monotonic();self.rate_wall=0.;self.rate_sim=0.;self.effective_speed=0.
+        # server --watch-launcher has a pending read on its stdin lifetime
+        # pipe. Inheriting it can deadlock Python initialization on Windows
+        # (CPython #78961), before even the worker's first log statement.
         with (self.directory/'worker.log').open('w') as log:
-            self.process=subprocess.Popen([str(self.python),str(self.root/'physics_worker.py'),'--config',str(config_path)],cwd=self.root,stdout=log,stderr=subprocess.STDOUT,start_new_session=(os.name=='posix'),env=physics_environment())
+            self.process=subprocess.Popen([str(self.python),str(self.root/'physics_worker.py'),'--config',str(config_path)],cwd=self.root,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=(os.name=='posix'),env=physics_environment())
         return self.status()
     def stop(self):
         process=self.process

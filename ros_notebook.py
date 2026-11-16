@@ -40,7 +40,7 @@ class RosNotebook:
 
     def _command(self,args,*,timeout=15,check=True):
         result=subprocess.run(['bash',str(self.script),*args],cwd=self.root,
-            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=timeout)
+            stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=timeout)
         if check and result.returncode:
             raise RosNotebookError(503,'ROS 실습 실행 명령이 실패했습니다. ros-jupyter 실행 기록을 확인하세요.')
         return result

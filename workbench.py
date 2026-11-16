@@ -135,7 +135,7 @@ class Workbench:
     def _probe(self):
         code="import importlib.metadata,json,torch;print(json.dumps(dict(torch=importlib.metadata.version('torch'),ultralytics=importlib.metadata.version('ultralytics'),mps=torch.backends.mps.is_available(),cpu=True)))"
         try:
-            result=subprocess.run([str(self.python),'-c',code],capture_output=True,text=True,timeout=25,env=self._environment())
+            result=subprocess.run([str(self.python),'-c',code],stdin=subprocess.DEVNULL,capture_output=True,text=True,timeout=25,env=self._environment())
             if result.returncode:raise RuntimeError(result.stderr[-1500:])
             record=json.loads(result.stdout.strip().splitlines()[-1])
             with self.lock:self.capabilities.update(record,status='available')
@@ -436,7 +436,7 @@ class Workbench:
     def _run(self,job,command,cancel):
         directory=self.store/'jobs'/job['id'];log=(directory/'worker.log').open('wb')
         try:
-            process=subprocess.Popen(command,cwd=self.root,env=self._environment(),stdout=log,stderr=subprocess.STDOUT,start_new_session=(os.name=='posix'))
+            process=subprocess.Popen(command,cwd=self.root,env=self._environment(),stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=(os.name=='posix'))
             with self.lock:self.processes[job['id']]=process;job['pid']=process.pid;self._save_job(job)
             started=time.monotonic()
             while process.poll() is None:
@@ -586,7 +586,7 @@ class Workbench:
             command=['bash',str(self.root/'ros2/run-participant.sh'),*arguments] if transport=='ros' else [str(self.python),*arguments]
             env=self._environment();env.update(MAICON_ROS_SLOT=deployment['slot'],MAICON_ROS_NAMESPACE='participant',MAICON_ROS_SCAN_TOPIC='/participant/scan',MAICON_ROS_INTERFACE_PACKAGE='sim_mil_interfaces')
             log=(output/'worker.log').open('wb')
-            try:process=subprocess.Popen(command,cwd=self.root,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=(os.name=='posix'))
+            try:process=subprocess.Popen(command,cwd=self.root,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=(os.name=='posix'))
             finally:log.close()
             self.controller_process=process
             launch=dict(output_dir=str(output),pid=process.pid,model_id=deployment['model_id'],deployment_id=deployment['id'],started_at=now(),code_version_id=deployment['code_version_id'],code_sha256=deployment['code_sha256'],entrypoint_sha256=deployment['entrypoint_sha256'],code_path=str(script),code_files=deployment['code_files'])
@@ -612,7 +612,7 @@ class Workbench:
         server=self.runtime_status().get('server_url','http://127.0.0.1:8765')
         try:
             completed=subprocess.run([str(self.python),str(helper),'--root',str(self.root),'--server',server],
-                stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=10)
+                stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=10)
             result=json.loads(completed.stdout)
             if completed.returncode or not isinstance(result,dict):raise ValueError('recovery failed')
         except (OSError,ValueError,subprocess.SubprocessError):result={'stopped':[],'remaining':[],'error':'ownership verification unavailable'}

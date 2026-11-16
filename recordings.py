@@ -84,7 +84,7 @@ class RecordingStore:
                                    '-map','0:v:0','-c','copy','-an']
                         if extension == 'mp4': command += ['-movflags','+faststart']
                         command += ['-f',extension,str(normalized)]
-                        outcome = subprocess.run(command, capture_output=True, timeout=45)
+                        outcome = subprocess.run(command, stdin=subprocess.DEVNULL, capture_output=True, timeout=45)
                         remuxed = outcome.returncode == 0 and normalized.is_file() and normalized.stat().st_size > 16
                     if remuxed: normalized.replace(temporary)
                 except (OSError, subprocess.TimeoutExpired):

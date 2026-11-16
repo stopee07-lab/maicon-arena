@@ -318,7 +318,7 @@ class Development:
             self.codex = dict(available=False, logged_in=False, detail='Codex CLI가 없습니다. 터미널에서 설치 후 로그인하세요.')
             return
         try:
-            result = subprocess.run([self.codex_path, 'login', 'status'], capture_output=True, text=True, timeout=10)
+            result = subprocess.run([self.codex_path, 'login', 'status'], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=10)
             logged = result.returncode == 0
             self.codex = dict(available=True, logged_in=logged, detail='이 Mac의 Codex 로그인 사용' if logged else '터미널에서 codex login을 실행하세요.')
         except Exception as exc:

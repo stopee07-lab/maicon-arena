@@ -14,6 +14,43 @@ sys.path.insert(0, str(ROOT))
 
 
 class PortableLaunch(unittest.TestCase):
+    def test_physics_child_does_not_inherit_launcher_lifetime_pipe(self):
+        # Keep the parent's stdin open with an outstanding read, just like
+        # server --watch-launcher. A noninteractive child must receive EOF on
+        # its own stdin without consuming or waiting on that lifetime pipe.
+        script = '''
+import os, sys, tempfile, threading
+from pathlib import Path
+from types import SimpleNamespace
+from engine import Engine
+from physics import Physics
+threading.Thread(target=lambda: sys.stdin.buffer.read(1), daemon=True).start()
+with tempfile.TemporaryDirectory() as directory:
+    root = Path(directory)
+    (root/'physics_worker.py').write_text("import sys; print('EOF', repr(sys.stdin.read()), flush=True)")
+    server = SimpleNamespace(engine=Engine(), practice=Engine(practice_mode=True),
+        rehearsal=Engine(), server_port=1, access={'admin_key':'fixture'})
+    physics = Physics(server, root)
+    physics.python = Path(sys.executable)
+    try:
+        physics.start('mission')
+        assert physics.process.wait(timeout=3) == 0
+        assert "EOF ''" in (root/'physics_data/worker.log').read_text()
+    finally:
+        physics.stop()
+os._exit(0)
+'''
+        process = subprocess.Popen([sys.executable, '-c', script], cwd=ROOT,
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            code = process.wait(timeout=12)
+            self.assertEqual(code, 0, process.stderr.read().decode('utf-8', 'replace'))
+        finally:
+            process.stdin.close()
+            if process.poll() is None:
+                process.kill(); process.wait()
+            process.stdout.close(); process.stderr.close()
+
     def test_code_snapshot_preserves_bytes_with_windows_text_newlines(self):
         from development import CodeStore, DevelopmentError, EDITABLE
         original_write = Path.write_text
