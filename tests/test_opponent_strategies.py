@@ -7,6 +7,13 @@ def observation(now=1, slot='R-2', x=0, y=0):
                 scan=dict(ranges=[8.]*181,angle_min=-math.pi,angle_increment=math.tau/180,measured_at=now,received_at=now))
 
 class Strategies(unittest.TestCase):
+    def test_anonymous_lidar_return_never_authorizes_fire(self):
+        for role in ('scout','defender','hunter','capturer','balanced'):
+            for distance in (.6,1.,1.7,2.2):
+                o=observation(30);o['scan']['ranges']=[distance]*181
+                commands,_=sensor_policy(o,{}, {},role)
+                self.assertFalse(any(kind=='fire' for kind,_ in commands), (role,distance))
+
     def test_five_roles_have_distinct_goals(self):
         goals=[]
         for role in ('scout','defender','hunter','capturer','balanced'):

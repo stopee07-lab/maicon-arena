@@ -57,18 +57,18 @@ def navigate(e,r,goal):
  r.command_at=now
 
 
-POLICY_VERSION='sensor-five-roles-v3'
+POLICY_VERSION='sensor-five-roles-v4-no-blind-fire'
 ROLE_DESCRIPTIONS={
  'scout':'wide patrol with short observation stops',
  'defender':'home-side patrol with long guard stops',
- 'hunter':'central advance and sustained anonymous-return fire',
+ 'hunter':'central advance without unidentified-return fire',
  'capturer':'staging then published M5 objective crossing',
  'balanced':'midfield patrol alternating movement and observation',
 }
 
 def sensor_policy(observation,own_order,memory,role):
  """Own sensors + published orders only. Map calibration is a public-plan assumption.
- No enemy identity from lidar; firing at returns is a deliberately weak baseline.
+ No enemy identity from lidar; anonymous returns never authorize firing.
  No hidden M1 answers, target locations, M3 labels/counts or enemy state are read.
  """
  state=dict(memory);scan=observation.get('scan',{});ranges=scan.get('ranges',[])
@@ -136,15 +136,10 @@ def sensor_policy(observation,own_order,memory,role):
   if clearance<.75 and abs(error)<.75:error+=turn*.8
   speed={'scout':.34,'defender':.18,'hunter':.28,'capturer':.32,'balanced':.23}.get(role,.22)
   w=max(-1.5,min(1.5,error*2.4));v=speed*max(0.,math.cos(error)) if abs(error)<.85 else 0.
- # A front return is not an identified opponent. Log this limitation explicitly.
- fire_interval={'scout':20.,'defender':8.,'hunter':4.5,'capturer':9999.,'balanced':13.}.get(role,13.)
- fire_range={'scout':1.1,'defender':1.8,'hunter':2.4,'capturer':0.,'balanced':1.5}.get(role,1.5)
- fire=.55<clearance<fire_range and now-state.get('last_fire',0)>fire_interval
- if fire:
-  state['last_fire']=now
-  if role=='hunter':state['engage_until']=now+2.3
- if role=='hunter' and now<state.get('engage_until',-1):v,w=0.,0.;intent='engage_return'
+ # Distance alone cannot distinguish a wall, teammate, or valid target.
+ # This baseline has no visual target classifier, so it never authorizes fire.
+ # Participant visual aiming and explicit manual fire remain separate paths.
+ state['fire_inhibited']='no identified visual target'
  commands=[('cmd_vel',dict(linear_x=v,angular_z=w)),('gimbal',dict(pan=0.,tilt=0.,speed=80.,acc=20.))]
- if fire:commands.append(('fire',{}))
  state.update(intent=intent,estimated_world=[x,y,yaw])
  return commands,state

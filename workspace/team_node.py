@@ -390,24 +390,56 @@ def drone_components(jpeg):
 class TemporalScan:
     """Repair sparse missing rays from recent raw own measurements, never free space.
 
-    Bounds are explicit local calibration: .22 s age, .025 m translation,
+    Bounds are explicit local calibration: .75 s age, .025 m translation,
     .10 rad yaw and at most 10% missing rays. Historical ranges are shortened
     for pose/range uncertainty and an assumed .4 m/s approaching obstacle.
-    Large gaps, full dropout, stale history and fast motion remain unknown.
-    Only raw source frames enter history; repaired values cannot extend expiry.
+    The .75 s window tolerates delayed control polls; every reused range loses
+    .4 * age metres over the FULL interval, not a capped nominal scan period.
+    This assumes obstacle approach <= .4 m/s and calibrated pose/range error;
+    it is not a physical-world safety guarantee. Large gaps, full dropout,
+    stale history and fast motion remain unknown.
+    Age includes the original source age plus local elapsed time, and never
+    understates elapsed time in the matching source clock. Reuse requires an
+    explicit matching clock domain and a registered source pose; ROS adapters
+    without that metadata cannot repair gaps. Only raw source frames enter
+    history; repaired values cannot extend expiry. Foreign capture clocks also
+    require an aware wall capture timestamp; translating its age to the state
+    clock assumes real-time (1x) seconds, as in the local physics transport.
     """
-    def __init__(self):self.history=[];self.key=None;self.poses=[]
-    def update(self,state,now=None):
+    MAX_AGE_S=.75
+
+    def __init__(self):self.history=[];self.key=None;self.poses=[];self.domain=None
+    def update(self,state,now=None,now_wall=None):
         now=time.monotonic() if now is None else now
         result=dict(state);scan=state.get('scan',{});ranges=scan.get('ranges',[])
         odom=state.get('odom',{});pose=tuple(float(odom.get(k,0)) for k in ('x','y','yaw'))
-        clock=float(state.get('measured_at',0.))
+        clock=float(state.get('measured_at',0.));domain=state.get('clock_domain')
+        if domain!=self.domain:
+            self.poses=[];self.history=[];self.key=None;self.domain=domain
         if self.poses and clock<self.poses[-1][0]:self.poses=[];self.history=[];self.key=None
         if self.poses and clock==self.poses[-1][0]:self.poses[-1]=(clock,pose)
         else:self.poses.append((clock,pose))
         self.poses=[v for v in self.poses if clock-v[0]<=2.]
-        source_time=scan.get('received_at')
-        if source_time is None and scan.get('clock_domain')==state.get('clock_domain'):source_time=scan.get('measured_at')
+        # Prefer the oldest comparable timestamp: receipt must not renew an
+        # already old capture. Cross-domain timestamps cannot establish age.
+        comparable=[scan.get(field) for field,clock_field in
+            (('measured_at','clock_domain'),('received_at','received_clock_domain'))
+            if isinstance(domain,str) and domain and scan.get(clock_field)==domain]
+        valid_times=bool(comparable) and all(not isinstance(t,bool) and isinstance(t,(int,float))
+            and math.isfinite(t) and math.isfinite(clock) and 0<=clock-t for t in comparable)
+        source_time=min(comparable) if valid_times else None
+        if source_time is not None and scan.get('clock_domain')!=domain:
+            try:
+                captured=datetime.fromisoformat(scan['captured_at'])
+                wall_age=(time.time() if now_wall is None else now_wall)-captured.timestamp()
+                if captured.tzinfo is None or not math.isfinite(wall_age) or wall_age<0:
+                    source_time=None
+                else:
+                    # Receipt is only a lower bound on capture age. Account for
+                    # transport delay before registering pose or retaining raw rays.
+                    source_time=min(source_time,clock-wall_age)
+            except (KeyError,TypeError,ValueError,OverflowError,OSError):
+                source_time=None
         registration=None
         if isinstance(source_time,(int,float)) and 0<=clock-source_time<=.25:
             before=[v for v in self.poses if v[0]<=source_time];after=[v for v in self.poses if v[0]>=source_time]
@@ -418,7 +450,8 @@ class TemporalScan:
                 stationary=bool(older and math.dist(aligned[:2],older[0][1][:2])<.01 and abs(angle(aligned[2]-older[0][1][2]))<.02)
                 registration=dict(odom=dict(zip(('x','y','yaw'),aligned)),source_time=source_time,age_s=round(clock-source_time,5),stationary=stationary,method='own odometry interpolated at same-domain scan receive time; capture-time lower-bound approximation')
         result['scan_registration']=registration
-        self.history=[h for h in self.history if 0<=now-h[0]<=.22]
+        self.history=[h for h in self.history
+            if 0<=max(now-h[0],clock-h[3])<=self.MAX_AGE_S]
         key=(scan.get('clock_domain'),scan.get('frame_seq'),scan.get('measured_at'))
         step=scan.get('angle_increment',0.);start=scan.get('angle_min',0.);maximum=scan.get('range_max',8.)
         def valid(v):return not isinstance(v,bool) and isinstance(v,(int,float)) and math.isfinite(v) and 0<=v<=maximum
@@ -427,8 +460,8 @@ class TemporalScan:
         if ranges and 0<abs(step)<=.15 and len(missing)<=len(ranges)*.10:
             for i in missing:
                 candidates=[]
-                for at,old_pose,old_scan in self.history:
-                    translation=math.dist(pose[:2],old_pose[:2]);dyaw=angle(pose[2]-old_pose[2]);age=now-at
+                for at,old_pose,old_scan,old_source_time in self.history:
+                    translation=math.dist(pose[:2],old_pose[:2]);dyaw=angle(pose[2]-old_pose[2]);age=max(now-at,clock-old_source_time)
                     if translation>.025 or abs(dyaw)>.10 or old_scan.get('angle_increment')!=step:continue
                     bearing=angle(start+i*step+dyaw)
                     index=round((bearing-old_scan['angle_min'])/step)
@@ -440,11 +473,16 @@ class TemporalScan:
                     lower=max(0.,distance-translation-distance*math.sin(err)-.02-.4*age)
                     candidates.append((lower,age,index))
                 if candidates:
-                    lower,age,index=min(candidates);repaired[i]=lower;sources.append(dict(index=i,age_s=round(age,4),source_index=index,lower_bound=round(lower,4)))
+                    # New raw evidence supersedes older bounds, just as a
+                    # current valid ray does. Age first; conservative ties.
+                    lower,age,index=min(candidates,key=lambda item:(item[1],item[0]))
+                    repaired[i]=lower;sources.append(dict(index=i,age_s=round(age,4),source_index=index,lower_bound=round(lower,4)))
         result['navigation_scan']={**scan,'ranges':repaired}
-        result['scan_repair']=dict(policy='raw-temporal-v1',missing=len(missing),repaired=len(sources),sources=sources,age_limit_s=.22,translation_limit_m=.025)
-        if key!=self.key:
-            self.history.append((now,pose,copy.deepcopy(scan)));self.key=key
+        result['scan_repair']=dict(policy='raw-temporal-v5',missing=len(missing),repaired=len(sources),sources=sources,age_limit_s=self.MAX_AGE_S,translation_limit_m=.025)
+        if key!=self.key and registration is not None:
+            source_pose=tuple(registration['odom'][k] for k in ('x','y','yaw'))
+            self.history.append((now-(clock-source_time),source_pose,copy.deepcopy(scan),source_time))
+            self.key=key
         return result
 
 
@@ -729,6 +767,13 @@ class SurveyNavigator:
                 self.reason='translation speed reduced to preserve stopping clearance'
         if angular:
             clearance=rotation_clearance(state)
+            if linear>0 and abs(angular)<=.12 and (clearance is None or clearance<=BODY_ROTATION_RADIUS):
+                # A small heading trim is optional when the straight command
+                # already passed the SAME measured corridor/braking gate above.
+                # Defer rotation for this control cycle; never infer free side
+                # space or use this fallback for reverse or large/in-place turns.
+                self.reason='measured straight motion; small heading trim deferred'
+                return linear,0.
             if clearance is None:return self.wait_scan('await fresh rotation scan')
             if clearance<=BODY_ROTATION_RADIUS:
                 self.reason='rotation footprint clearance insufficient';return 0.,0.
@@ -977,6 +1022,12 @@ class SurveyNavigator:
         if front is None:
             return self.wait_scan('await fresh front scan')
         if front<.04:
+            # A shortened historical range is an uncertainty bound, not a new
+            # measured obstacle endpoint. It can stop motion, but must not
+            # trigger reverse/turn recovery or spend its attempt budget.
+            raw_front=translation_clearance({**state,'navigation_scan':state.get('scan',{})})
+            if raw_front is None or raw_front>=.04:
+                return self.wait_scan('await fresh front scan; historical clearance uncertain')
             if self.mode=='wait_path':
                 self.reason='waiting stationary for clear local corridor and route';return 0.,0.
             self.reason='front obstruction';return self.begin_recovery(state,now)

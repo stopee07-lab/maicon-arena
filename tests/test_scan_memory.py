@@ -5,7 +5,7 @@ from team_node import TemporalScan,arc_clearance
 def state(seq=1,missing=(),x=0,yaw=0):
  ranges=[1.]*181
  for i in missing:ranges[i]=None
- return dict(measured_at=seq*.1,odom=dict(x=x,y=0.,yaw=yaw),scan=dict(frame_seq=seq,measured_at=seq*.1,received_at=seq*.1,ranges=ranges,angle_min=-math.pi,angle_increment=math.tau/180,range_max=8.))
+ return dict(clock_domain="test_seconds",measured_at=seq*.1,odom=dict(x=x,y=0.,yaw=yaw),scan=dict(clock_domain="test_seconds",received_clock_domain="test_seconds",frame_seq=seq,measured_at=seq*.1,received_at=seq*.1,ranges=ranges,angle_min=-math.pi,angle_increment=math.tau/180,range_max=8.))
 class ScanMemory(unittest.TestCase):
  def test_short_lived_measured_gap_can_restore_rotation(self):
   memory=TemporalScan();memory.update(state(),now=1.)
@@ -19,7 +19,7 @@ class ScanMemory(unittest.TestCase):
   self.assertIsNone(arc_clearance(m.update(state(2,range(181)),now=1.1)))
  def test_expired_measurements_not_reused(self):
   m=TemporalScan();m.update(state(),now=1)
-  self.assertIsNone(arc_clearance(m.update(state(2,[90]),now=1.5)))
+  self.assertIsNone(arc_clearance(m.update(state(2,[90]),now=1.8)))
  def test_translation_invalidates_old_rays(self):
   m=TemporalScan();m.update(state(),now=1)
   self.assertIsNone(arc_clearance(m.update(state(2,[90],x=.1),now=1.1)))
@@ -27,8 +27,8 @@ class ScanMemory(unittest.TestCase):
   m=TemporalScan();m.update(state(),now=1);current=state(2);current['scan']['ranges'][90]=.10
   self.assertEqual(arc_clearance(m.update(current,now=1.1)),.10)
  def test_cached_source_does_not_refresh_age(self):
-  m=TemporalScan();m.update(state(),now=1);m.update(state(),now=1.18)
-  self.assertIsNone(arc_clearance(m.update(state(2,[90]),now=1.3)))
+  m=TemporalScan();m.update(state(),now=1);m.update(state(),now=1.68)
+  self.assertIsNone(arc_clearance(m.update(state(2,[90]),now=1.8)))
  def test_yaw_alignment_uses_correct_historical_direction(self):
   m=TemporalScan();old=state();old['scan']['ranges'][91]=.5;m.update(old,now=1)
   result=m.update(state(2,[90],yaw=math.tau/180),now=1.1)

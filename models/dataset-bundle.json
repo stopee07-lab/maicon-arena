@@ -1,0 +1,6 @@
+{
+  "id": "dataset-20261114-063204-4155ccf9",
+  "archive": "example-photo-dataset.zip",
+  "sha256": "63356a3d1857c5719cf9bcbfae71c545b022165d26f41cff3c7edceaea34ed47",
+  "source": "Original 720 synthetic example-photo training frames; train 480, val 120, test 120. No real camera data. Original manifest and all image/label bytes preserved."
+}

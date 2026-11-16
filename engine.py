@@ -7,6 +7,7 @@ import random
 import threading
 import rule_profile as rules
 import arena_layout
+from opponents import POLICY_VERSION
 import sensor_profile as sensors
 from fidelity_geometry import ray_aabb, ray_disk, laser_pose, robot_receivers, ray_robot, intersects_line, crossing_fraction
 from collections import Counter
@@ -176,7 +177,7 @@ class Engine:
         return arena
 
     def identity(self):
-        return dict(rule_profile=self.rule_profile['id'],environment_profile=self.sensor_profile['name'],sensor_profile=self.sensor_profile['name'],layout_version=arena_layout.LAYOUT_VERSION,seed=self.seed,opponent_mode=self.opponent_mode,opponent_policy_version='sensor-five-roles-v3' if self.opponent_mode=='sensor_limited' else 'privileged-legacy-v1')
+        return dict(rule_profile=self.rule_profile['id'],environment_profile=self.sensor_profile['name'],sensor_profile=self.sensor_profile['name'],layout_version=arena_layout.LAYOUT_VERSION,seed=self.seed,opponent_mode=self.opponent_mode,opponent_policy_version=POLICY_VERSION if self.opponent_mode=='sensor_limited' else 'privileged-legacy-v1')
 
     def _event(self,kind,message,slot=None):
         ev=dict(time=round(self.elapsed,3),type=kind,message=message)
@@ -723,6 +724,6 @@ class Engine:
         policy=getattr(r,'sensor_policy_memory',{})
         commands,policy=sensor_policy(observation,order,policy,r.strategy)
         r.sensor_policy_memory=policy
-        self.opponent_policy_log.append(dict(time=round(self.clock,6),slot=r.slot,policy_version='sensor-five-roles-v3',observation=copy.deepcopy(observation),own_order=copy.deepcopy(order),role=r.strategy,decision=copy.deepcopy(policy),commands=copy.deepcopy(commands)))
+        self.opponent_policy_log.append(dict(time=round(self.clock,6),slot=r.slot,policy_version=POLICY_VERSION,observation=copy.deepcopy(observation),own_order=copy.deepcopy(order),role=r.strategy,decision=copy.deepcopy(policy),commands=copy.deepcopy(commands)))
         for kind,body in commands:
             self.robot_command(r,kind,body)
