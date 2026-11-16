@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 """MuJoCo physics and offscreen camera owner; all GL work stays on this thread."""
+import faulthandler
+if __name__=='__main__':
+    faulthandler.enable()
+    faulthandler.dump_traceback_later(20,repeat=True)
+    print('MuJoCo: worker boot',flush=True)
 import argparse,base64,io,json,math,signal,time,urllib.request,traceback
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
@@ -147,6 +152,7 @@ class Runtime:
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--config',required=True);args=p.parse_args();runtime=Runtime(json.loads(Path(args.config).read_text()))
+    faulthandler.cancel_dump_traceback_later()
     def stop(*_):
         runtime.running=False
         raise SystemExit(0)
