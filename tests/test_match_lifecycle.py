@@ -2,13 +2,35 @@ import threading
 import time
 import unittest
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from engine import Engine, APIError
 from server import SimulationHTTPServer
 
 
 class MatchLifecycleTests(unittest.TestCase):
+    def test_physics_start_waits_for_slow_first_frame(self):
+        clock = [0.]
+        def status():
+            return {'running': True, 'connected': clock[0] >= 20}
+        self.s.physics.status.side_effect = status
+        with patch('server.time.monotonic', side_effect=lambda: clock[0]), patch('server.time.sleep', side_effect=lambda _: clock.__setitem__(0, clock[0]+5)):
+            self.s.wait_for_physics(self.s.execution_ticket())
+        self.assertEqual(clock[0], 20)
+
+    def test_physics_start_fails_immediately_for_exited_worker(self):
+        self.s.physics.status.return_value.update(running=False, connected=False, error='worker exited 7')
+        with patch('server.time.sleep') as sleep:
+            with self.assertRaisesRegex(APIError, 'worker exited 7'):
+                self.s.wait_for_physics(self.s.execution_ticket())
+            sleep.assert_not_called()
+
+    def test_physics_start_timeout_remains_bounded(self):
+        self.s.physics.status.return_value['connected'] = False
+        with patch('server.time.monotonic', side_effect=[0, 61]):
+            with self.assertRaisesRegex(APIError, '60'):
+                self.s.wait_for_physics(self.s.execution_ticket())
+
     def setUp(self):
         self.s = SimulationHTTPServer.__new__(SimulationHTTPServer)
         self.s.engine = Engine()

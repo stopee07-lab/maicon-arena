@@ -10,8 +10,12 @@ from physics_world import CLASSES
 
 class Runtime:
     def __init__(self,c):
+        print('MuJoCo: loading arena model',flush=True)
         self.c=c;self.m=mujoco.MjModel.from_xml_string(c['world_xml']) if c.get('world_xml') else mujoco.MjModel.from_xml_path(c['world']);self.d=mujoco.MjData(self.m)
-        self.r=mujoco.Renderer(self.m,height=480,width=640);self.dr=mujoco.Renderer(self.m,height=960,width=1280)
+        print('MuJoCo: initializing UGV renderer',flush=True)
+        self.r=mujoco.Renderer(self.m,height=480,width=640)
+        print('MuJoCo: initializing UAV renderer',flush=True)
+        self.dr=mujoco.Renderer(self.m,height=960,width=1280)
         self.slots=[x['slot'] for x in c['robots']];self.seq=0;self.running=True;self.commands=[];self.capture=None
         self.gids={mujoco.mj_name2id(self.m,mujoco.mjtObj.mjOBJ_GEOM,k):v for k,v in c['panels'].items()}
         self.requested_cameras=[];self.speed=1;self.paused=False

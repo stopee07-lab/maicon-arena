@@ -192,6 +192,20 @@ class SimulationHTTPServer(ThreadingHTTPServer):
             if ticket!=self.execution_generation or self.stopping.is_set():
                 raise APIError(409,'중지 요청 이전에 대기하던 실행을 취소했습니다. 다시 실행하려면 실행 버튼을 누르세요')
 
+    def wait_for_physics(self,ticket,timeout=60):
+        # First software-rendered scene initialization can take longer than a
+        # warm camera frame. Wait only while the owned worker is still alive.
+        deadline=time.monotonic()+timeout
+        while True:
+            self.check_execution_ticket(ticket)
+            status=self.physics.status()
+            if status.get('connected'):return
+            if not status.get('running'):
+                raise APIError(503,'물리 경기장 시작 실패: '+str(status.get('error') or '작업자가 종료됐습니다. physics_data/worker.log를 확인하세요'))
+            if time.monotonic()>=deadline:
+                raise APIError(503,f'물리 경기장 첫 프레임을 {timeout}초 안에 받지 못했습니다. physics_data/worker.log를 확인하세요')
+            time.sleep(.1)
+
     def apply_and_run(self,body):
         """One explicit action snapshots, deploys and verifies the chosen code."""
         ticket=self.execution_ticket()
@@ -231,11 +245,7 @@ class SimulationHTTPServer(ThreadingHTTPServer):
                 self.physics.start(runtime,controlled_slot=slot)
                 with engine.changed:
                     engine.paused=True;engine.match_cmd='pause';engine._clear_motion();engine.changed.notify_all()
-                deadline=time.monotonic()+12
-                while not self.physics.status().get('connected'):
-                    self.check_execution_ticket(ticket)
-                    if time.monotonic()>=deadline:raise APIError(503,'물리 경기장 연결 실패. 코드 실행을 중지했습니다')
-                    time.sleep(.1)
+                self.wait_for_physics(ticket)
                 self.check_execution_ticket(ticket)
                 wb.start_controller(dict(expected_code_version_id=version['id'],expected_runtime=runtime,expected_deployment_id=deployment['id']))
                 deadline=time.monotonic()+30
