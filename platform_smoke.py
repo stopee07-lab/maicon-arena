@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+import urllib.error
 
 from runtime_paths import physics_environment, runtime_python, stop_process
 
@@ -95,6 +96,30 @@ def main():
                     'speed selection', 'pause/resume', 'owned processes stopped'])
         except Exception as exc:
             result['error'] = type(exc).__name__ + ': ' + str(exc)
+            if isinstance(exc, urllib.error.HTTPError):
+                result['http_detail'] = json.load(exc).get('detail')
+            # Capture only the owned participant log; remove generated access
+            # credentials before placing diagnostics in the public CI artifact.
+            access = json.loads((ROOT / 'data/access.json').read_text(encoding='utf-8')) if (ROOT / 'data/access.json').exists() else {}
+            secrets = []
+            def collect(value):
+                if isinstance(value, dict):
+                    for name, item in value.items():
+                        if isinstance(item, str) and ('key' in name or 'code' in name):
+                            secrets.append(item)
+                        else:
+                            collect(item)
+                elif isinstance(value, list):
+                    for item in value:
+                        collect(item)
+            collect(access)
+            logs = sorted((ROOT / 'data/workbench/controllers').glob('*/worker.log'))
+            if logs:
+                tail = logs[-1].read_text(encoding='utf-8', errors='replace')[-6000:]
+                for secret in secrets:
+                    if secret:
+                        tail = tail.replace(secret, '[REDACTED]')
+                result['participant_log_tail'] = tail
             if key:
                 try:
                     state = api('/api/admin/state')
