@@ -114,12 +114,17 @@ def main():
                         collect(item)
             collect(access)
             logs = sorted((ROOT / 'data/workbench/controllers').glob('*/worker.log'))
+            diagnostic_logs = {'physics_log_tail': ROOT / 'physics_data/worker.log'}
             if logs:
-                tail = logs[-1].read_text(encoding='utf-8', errors='replace')[-6000:]
+                diagnostic_logs['participant_log_tail'] = logs[-1]
+            for name, path in diagnostic_logs.items():
+                if not path.exists():
+                    continue
+                tail = path.read_text(encoding='utf-8', errors='replace')[-6000:]
                 for secret in secrets:
                     if secret:
                         tail = tail.replace(secret, '[REDACTED]')
-                result['participant_log_tail'] = tail
+                result[name] = tail
             if key:
                 try:
                     state = api('/api/admin/state')
