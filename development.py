@@ -206,7 +206,9 @@ class CodeStore:
                             files=hashes, sha256=sha(canonical(hashes)), entrypoint='team_node.py')
             for filename, text in content.items():
                 target = path / filename
-                target.write_text(text, encoding='utf-8')
+                # Preserve the exact bytes hashed above: text-mode writes on
+                # Windows translate LF and invalidate the immutable version.
+                target.write_bytes(text.encode('utf-8'))
                 target.chmod(0o444)
             save_json(path / 'manifest.json', manifest)
             (path / 'manifest.json').chmod(0o444)

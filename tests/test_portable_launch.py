@@ -14,6 +14,32 @@ sys.path.insert(0, str(ROOT))
 
 
 class PortableLaunch(unittest.TestCase):
+    def test_code_snapshot_preserves_bytes_with_windows_text_newlines(self):
+        from development import CodeStore, DevelopmentError, EDITABLE
+        original_write = Path.write_text
+        def windows_write(path, text, *args, **kwargs):
+            if kwargs.get('newline') is None:
+                kwargs['newline'] = '\r\n'
+            return original_write(path, text, *args, **kwargs)
+        for ending in (b'\n', b'\r\n'):
+            with self.subTest(ending=ending), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                (root/'workspace').mkdir()
+                source = b'value = 1' + ending + b'print(value)' + ending
+                for name in EDITABLE:
+                    (root/'workspace'/name).write_bytes(source)
+                store = CodeStore(root)
+                with patch.object(Path, 'write_text', windows_write):
+                    manifest = store.snapshot()
+                folder, _ = store.version(manifest['id'])
+                for name in EDITABLE:
+                    self.assertEqual((folder/name).read_bytes(), source)
+                entry = folder/'team_node.py'
+                entry.chmod(0o644)
+                entry.write_bytes(source + b'# modified\n')
+                with self.assertRaises(DevelopmentError):
+                    store.version(manifest['id'])
+
     def test_korean_help_with_legacy_console_encoding(self):
         env = dict(os.environ, PYTHONIOENCODING='cp1252', PYTHONUTF8='0')
         result = subprocess.run([sys.executable, str(ROOT/'launch.py'), '--help'],
