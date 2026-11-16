@@ -340,8 +340,18 @@ class SimulationHTTPServer(ThreadingHTTPServer):
                             last=self.physics.last or self.physics.started_at
                             timeout=2 if self.physics.last else 5
                             if last and time.monotonic()-last>timeout and not runtime.paused:
-                                runtime.paused=True;runtime.match_cmd='pause';runtime._clear_motion()
-                                runtime._event('physics_disconnected','물리 엔진 연결 끊김 · 일시정지 · 연결 복구 후 명시적 재개 필요')
+                                runtime._clear_motion()
+                                if self.physics.status().get('running'):
+                                    # Software rendering can take seconds on a
+                                    # CPU-only host. No samples means no match
+                                    # time advances. Clear commands, but do not
+                                    # latch a pause while our worker is alive.
+                                    if getattr(self.physics,'stall_reported_for',None)!=last:
+                                        runtime._event('physics_slow','물리 프레임 처리 지연 · 명령 정지 · 새 프레임에서 진행')
+                                        self.physics.stall_reported_for=last
+                                else:
+                                    runtime.paused=True;runtime.match_cmd='pause'
+                                    runtime._event('physics_disconnected','물리 엔진 종료 · 일시정지 · 연결 복구 후 명시적 재개 필요')
                                 runtime.changed.notify_all()
                     continue
                 for _ in range(runtime.speed):runtime.step(DT)

@@ -22,6 +22,21 @@ jobs:
         run: python launch.py --setup
       - name: Portable launcher tests
         run: python -m unittest discover -s tests -p test_portable_launch.py
+      - name: Windows hosted runner software OpenGL
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Hosted Windows has no vendor OpenGL driver. Scope Mesa to this job.
+          $archive = Join-Path $env:RUNNER_TEMP 'mesa.7z'
+          $destination = Join-Path $env:RUNNER_TEMP 'mesa'
+          Invoke-WebRequest 'https://github.com/pal1000/mesa-dist-win/releases/download/26.2.6/mesa3d-26.2.6-release-msvc.7z' -OutFile $archive
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne 'b2e00615feaba45942343c265cc8c5f576142ca682c1ac6661922d4b72492877') { throw 'Mesa download hash mismatch' }
+          & 'C:\Program Files\7-Zip\7z.exe' x $archive "-o$destination" -y
+          if ($LASTEXITCODE -ne 0) { throw 'Mesa extraction failed' }
+          Get-ChildItem "$destination\x64\*.dll" | Copy-Item -Destination $env:pythonLocation -Force
+          Get-ChildItem "$destination\x64\*.dll" | Copy-Item -Destination 'training\.venv\Scripts' -Force
+          'GALLIUM_DRIVER=llvmpipe' | Out-File -FilePath $env:GITHUB_ENV -Append
+          'LIBGL_ALWAYS_SOFTWARE=1' | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Import packages and render a MuJoCo camera
         if: runner.os != 'macOS'
         run: python launch.py --check

@@ -1,4 +1,5 @@
 import threading
+import time
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -83,3 +84,20 @@ class MatchLifecycleTests(unittest.TestCase):
         self.s.tick_once()
         self.assertEqual(self.s.rehearsal.phase, 'ready')
         self.assertIsNone(self.s.rehearsal_start_at)
+
+    def test_live_slow_renderer_clears_motion_without_latching_pause(self):
+        self.s.engine.control({'action': 'start'})
+        self.s.engine.physical_active = True
+        self.s.engine.robots['B-1'].v = .4
+        self.s.physics.last = time.monotonic() - 3
+        self.s.tick_once()
+        self.assertFalse(self.s.engine.paused)
+        self.assertEqual(self.s.engine.robots['B-1'].v, 0)
+
+    def test_dead_physics_worker_still_pauses_match(self):
+        self.s.engine.control({'action': 'start'})
+        self.s.engine.physical_active = True
+        self.s.physics.last = time.monotonic() - 3
+        self.s.physics.status.return_value['running'] = False
+        self.s.tick_once()
+        self.assertTrue(self.s.engine.paused)

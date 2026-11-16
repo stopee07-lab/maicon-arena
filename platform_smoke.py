@@ -88,6 +88,13 @@ def main():
                     'speed selection', 'pause/resume', 'owned processes stopped'])
         except Exception as exc:
             result['error'] = type(exc).__name__ + ': ' + str(exc)
+            if key:
+                try:
+                    state = api('/api/admin/state')
+                    result['failure_state'] = {k: state.get(k) for k in ('phase','paused','elapsed','events')}
+                    result['failure_physics'] = api('/api/physics/status')
+                except Exception:
+                    pass
             raise
         finally:
             if key:
