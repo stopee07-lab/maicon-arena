@@ -18,7 +18,7 @@ MAX_BYTES = 256 * 1024 * 1024
 _LOCK = threading.RLock()
 _FIELDS = {'duration_s', 'runtime', 'code_version_id', 'code_sha256', 'model_id',
            'policy', 'started_at', 'ended_at', 'stop_reason', 'width', 'height', 'fps',
-           'source', 'controller_status', 'loaded'}
+           'source', 'camera_slot', 'controller_status', 'loaded'}
 
 
 class RecordingStore:

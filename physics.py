@@ -11,14 +11,14 @@ class Physics:
         self.server=server;self.root=Path(root);self.python=runtime_python(self.root)
         self.lock=threading.RLock();self.process=None;self.engine=None;self.runtime=None
         self.last=0.;self.started_at=0.;self.error=None;self.warning=None;self.lag_seconds=0.;self.frames={};self.sim_time=0.;self.seq=0;self.pending=queue.Queue();self.requests={};self.generation=0;self.last_generation=None
-        self.requested_cameras={}
+        self.requested_cameras={};self.rate_wall=0.;self.rate_sim=0.;self.effective_speed=0.
         self.directory=self.root/'physics_data';self.directory.mkdir(exist_ok=True)
     def status(self):
         running=self.process is not None and self.process.poll() is None
         age=time.monotonic()-self.last if self.last else None
         error=self.error
         if self.process and self.process.poll() is not None and self.process.returncode:error=f'Physics exited ({self.process.returncode}); physics_data/worker.log'
-        return dict(installed=self.python.is_file(),running=running,connected=running and age is not None and age<2,runtime=self.runtime,provider='mujoco',renderer='MuJoCo OpenGL',sim_time=self.sim_time,frames=self.seq,frame_age_s=round(age,3) if age is not None else None,error=error,warning=self.warning,lag_seconds=self.lag_seconds)
+        return dict(installed=self.python.is_file(),running=running,connected=running and age is not None and age<2,runtime=self.runtime,provider='mujoco',renderer='MuJoCo OpenGL',sim_time=self.sim_time,frames=self.seq,frame_age_s=round(age,3) if age is not None else None,error=error,warning=self.warning,lag_seconds=self.lag_seconds,requested_speed=self.engine.speed if self.engine else 1,effective_speed=round(self.effective_speed,2) if running and self.engine and not self.engine.paused else 0.)
     def start(self,runtime='practice',controlled_slot='B-1'):
         if runtime not in ('practice','mission','rehearsal'):raise APIError(422,'runtime: practice, mission, rehearsal')
         self.stop()
@@ -33,7 +33,7 @@ class Physics:
         self.generation+=1;self.last=0;self.frames={};self.error=None;self.warning=None;self.lag_seconds=0.;self.requested_cameras={}
         config=dict(server=f'http://127.0.0.1:{self.server.server_port}',admin_key=self.server.access['admin_key'],generation=self.generation,world=str(self.directory/'arena.xml'),panels=panels,robots=snapshot['robots'],environment=snapshot['arena'].get('environment',{}))
         config_path=self.directory/'worker.json';config_path.write_text(json.dumps(config));config_path.chmod(0o600)
-        self.started_at=time.monotonic()
+        self.started_at=time.monotonic();self.rate_wall=0.;self.rate_sim=0.;self.effective_speed=0.
         with (self.directory/'worker.log').open('w') as log:
             self.process=subprocess.Popen([str(self.python),str(self.root/'physics_worker.py'),'--config',str(config_path)],cwd=self.root,stdout=log,stderr=subprocess.STDOUT,start_new_session=(os.name=='posix'),env=physics_environment())
         return self.status()
@@ -64,6 +64,11 @@ class Physics:
                 snapshot=e.snapshot();xml,panels=build_world(snapshot['arena'],snapshot['robots'])
                 return dict(reset=snapshot['robots'],generation=self.generation,world_xml=xml,panels=panels,environment=snapshot['arena'].get('environment',{}))
             self.last=time.monotonic();self.sim_time=float(body.get('sim_time',0));self.seq=int(body.get('seq',0))
+            if not self.rate_wall or e.paused:
+                self.rate_wall=self.last;self.rate_sim=self.sim_time;self.effective_speed=0.
+            elif self.last-self.rate_wall>=1:
+                self.effective_speed=max(0,(self.sim_time-self.rate_sim)/(self.last-self.rate_wall))
+                self.rate_wall=self.last;self.rate_sim=self.sim_time
             lag=body.get('lag_seconds')
             if lag is not None:
                 if not isinstance(lag,(int,float)) or not 0 <= lag <= 86400:raise APIError(422,'lag_seconds must be finite and nonnegative')
@@ -109,7 +114,7 @@ class Physics:
             with self.lock:
                 self.requested_cameras={slot:until for slot,until in self.requested_cameras.items() if until>self.last}
                 requested_cameras=sorted(self.requested_cameras)
-            return dict(commands=commands,capture=capture,generation=self.generation,paused=e.paused,requested_cameras=requested_cameras,target_states={t['id']:t['destroyed'] for t in e.arena['targets']})
+            return dict(commands=commands,capture=capture,generation=self.generation,paused=e.paused,speed=e.speed,requested_cameras=requested_cameras,target_states={t['id']:t['destroyed'] for t in e.arena['targets']})
     def frame(self,key):
         if not self.status()['connected']:raise APIError(503,'MuJoCo physics/camera is not connected')
         if key not in ('B-1','drone') and self.engine and key in self.engine.robots:

@@ -2,11 +2,11 @@ const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const modeName = v => ({practice:'자유연습',mission:'경기',rehearsal:'리허설'}[v] || v || '—');
 
-export function createRecording({state, api, response, flash, ensureScene}) {
+export function createRecording({state, api, response, flash, ensureScene, mount=null, sources=null}) {
   const section = document.createElement('section');
   section.className = 'card recording-card';
   section.innerHTML = `<div class="recording-toolbar"><div><h2>경기 녹화</h2><p>3D 경기장 + UGV·드론 영상 · 소리 없이 저장</p></div><span id="record-state" role="status">녹화 준비</span><button id="record-start" class="button secondary">● 녹화 시작</button><button id="record-stop" class="button primary" hidden>■ 종료·저장</button></div><p id="record-note" class="small-note">이 화면을 보는 동안 녹화합니다. 화면 이동·백그라운드 전환 시 자동으로 종료·저장합니다.</p><div id="record-pending" hidden><button id="record-retry" class="button secondary">프로젝트에 다시 저장</button><button id="record-local" class="button quiet">영상 직접 다운로드</button></div><details id="record-library"><summary>저장한 영상 <span id="record-count">0</span></summary><p class="small-note" id="record-directory">프로젝트의 simulator/data/recordings에 저장합니다.</p><div id="record-list"></div><video id="record-player" controls playsinline hidden></video></details>`;
-  $('#page-run .page-title').after(section);
+  if(mount)mount.append(section);else $('#page-run .page-title').after(section);
   const canvas = document.createElement('canvas');
   canvas.width = 1280; canvas.height = 720;
   const ctx = canvas.getContext('2d', {alpha:false});
@@ -48,10 +48,11 @@ export function createRecording({state, api, response, flash, ensureScene}) {
       scene.renderer.render(scene.scene,scene.camera);
       fit(scene.renderer.domElement,16,50,898,590);
     } else fit(null,16,50,898,590,false);
-    text('UGV · 내 로봇 카메라',934,73,18);
-    fit($('#inference-canvas'),934,86,330,247,$('#ugv-camera-empty').hidden);
+    text(`UGV · ${s.ownSlot||'B-1'} 카메라`,934,73,18);
+    const frames=sources?sources():{ugv:$('#inference-canvas'),ugvAvailable:$('#ugv-camera-empty')?.hidden,drone:$('#drone-image'),droneAvailable:$('#drone-camera-empty')?.hidden};
+    fit(frames.ugv,934,86,330,247,frames.ugvAvailable);
     text('UAV · 고정 정찰 카메라',934,365,18);
-    fit($('#drone-image'),934,378,330,247,$('#drone-camera-empty').hidden);
+    fit(frames.drone,934,378,330,247,frames.droneAvailable);
     const c=s.summary?.controller||{},r=s.ownSensor||{};
     text(`녹화 시작 코드 ${String(metadata.code_version_id||'참가자 프로그램 미실행')}  |  모델 ${String(metadata.model_id||'미실행')}`,20,668,16);
     text(`HP ${r.hp??'—'}  ·  탄약 ${r.ammo??'—'}  ·  상태 ${s.snapshot?.paused?'일시정지':s.snapshot?.phase||'—'}  ·  코드 ${String(c.code_sha256||'').slice(0,12)||'—'}`,20,696,17);
@@ -68,7 +69,7 @@ export function createRecording({state, api, response, flash, ensureScene}) {
       const mime=['video/webm;codecs=vp8','video/webm','video/mp4'].find(x=>MediaRecorder.isTypeSupported(x));
       if (!mime) throw new Error('이 브라우저에서 사용할 수 있는 녹화 형식이 없습니다.');
       const active=!!c.pid&&!['failed','exited','stopped','interrupted','not_started'].includes(c.status);
-      metadata={runtime:s.runtime,code_version_id:active?c.code_version_id:null,code_sha256:active?c.code_sha256:null,model_id:active?(c.model_id||d.model_id):null,policy:active?d.policy:null,controller_status:c.status,loaded:!!c.loaded,started_at:new Date().toISOString(),width:1280,height:720,fps:15,source:'simulator-composite'};
+      metadata={runtime:s.runtime,camera_slot:s.ownSlot||'B-1',code_version_id:active?c.code_version_id:null,code_sha256:active?c.code_sha256:null,model_id:active?(c.model_id||d.model_id):null,policy:active?d.policy:null,controller_status:c.status,loaded:!!c.loaded,started_at:new Date().toISOString(),width:1280,height:720,fps:15,source:'simulator-composite'};
       chunks=[];bytes=0;reason='user';started=performance.now();draw();
       stream=canvas.captureStream(15);recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:2000000});
       const ownRecorder=recorder,ownStream=stream;

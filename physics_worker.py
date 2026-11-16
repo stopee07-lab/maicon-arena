@@ -14,7 +14,7 @@ class Runtime:
         self.r=mujoco.Renderer(self.m,height=480,width=640);self.dr=mujoco.Renderer(self.m,height=960,width=1280)
         self.slots=[x['slot'] for x in c['robots']];self.seq=0;self.running=True;self.commands=[];self.capture=None
         self.gids={mujoco.mj_name2id(self.m,mujoco.mjtObj.mjOBJ_GEOM,k):v for k,v in c['panels'].items()}
-        self.requested_cameras=[]
+        self.requested_cameras=[];self.speed=1;self.paused=False
         self.reset(c['robots']);self.last_drone=-9;self.last_camera=-9;self.last_other={};self.last_scan=-9;self.scans={}
     def reset(self,robots):
         mujoco.mj_resetData(self.m,self.d)
@@ -127,25 +127,18 @@ class Runtime:
         for tid,destroyed in reply.get('target_states',{}).items():
             self.m.geom_rgba[self.m.geom('hit_led_'+tid).id]=[1,.02,.01,1] if destroyed else [.18,.02,.02,1]
         self.commands=reply.get('commands',[]);self.capture=reply.get('capture')
+        self.speed=reply.get('speed',1);self.paused=reply.get('paused',False)
         self.requested_cameras=reply.get('requested_cameras',[])
     def run(self):
-        simulated_wall=time.monotonic()
         try:
             while self.running:
-                now=time.monotonic();ticks=max(1,min(5,int((now-simulated_wall)/.05)))
-                self.tick(ticks);simulated_wall+=ticks*.05
-                lag=time.monotonic()-simulated_wall
-                if lag>2:
-                    # Rendering can stall while the Mac is busy. Pause the
-                    # authoritative match, but retain the worker/camera so the
-                    # user can resume or stop through the same buttons.
-                    # No old motion/score ticks are replayed to repay wall debt.
-                    reply=self.exchange(dict(sim_time=float(self.d.time),seq=self.seq,
-                        dt=0,samples=[],robots=self.poses(),lag_seconds=lag))
-                    self.commands=reply.get('commands',[])
-                    simulated_wall=time.monotonic()
-                    print(f'Physics rendering lag {lag:.2f}s: match paused; worker remains available',flush=True)
-                time.sleep(max(0,simulated_wall-time.monotonic()))
+                # Fixed physics samples, paced by the requested speed. Rendering
+                # overrun slows wall throughput; it never creates a debt that
+                # later replays stale commands or permanently pauses the match.
+                speed=1 if self.paused else self.speed
+                ticks=min(5,speed);started=time.monotonic()
+                self.tick(ticks)
+                time.sleep(max(0,ticks*.05/speed-(time.monotonic()-started)))
         finally:self.r.close();self.dr.close()
 
 def main():

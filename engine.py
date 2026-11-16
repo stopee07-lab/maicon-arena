@@ -246,8 +246,8 @@ class Engine:
             elif action=='speed':
                 if isinstance(data.get('value'),bool) or data.get('value') not in (1,5,20):invalid('value','배속은 1, 5, 20')
                 
-                if self.physical_active and data['value']!=1:raise APIError(409,'물리/센서 실행은 1배속만 지원합니다')
                 self.speed=int(data['value'])
+                self._event('speed',f'목표 배속 {self.speed}× · 실제 진행 속도는 처리 성능에 따라 달라집니다')
             elif action in ('fault','strategy'):
                 r=self.robots.get(data.get('slot'))
                 if not r:invalid('slot','B-1~B-3 또는 R-1~R-3')

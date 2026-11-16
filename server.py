@@ -170,7 +170,19 @@ class SimulationHTTPServer(ThreadingHTTPServer):
         with self.execution_request_lock:
             self.execution_generation+=1;self.execution_cancel.set()
         self._pause_all_runtimes()
-        with self.execution_lock:return self._stop_execution()
+        with self.execution_lock:
+            result=self._stop_execution()
+            # Stop ends the session, unlike pause. Keep its evidence and scores,
+            # but release the contest edit lock even after a worker has died.
+            for engine in (self.engine,self.rehearsal):
+                with engine.changed:
+                    if engine.phase in ('running','reporting'):
+                        engine._event('execution_stopped','실행 종료 · 참가 코드와 물리 엔진 정지')
+                        engine._finish()
+                        engine.paused=True
+            result['runtimes']={name:dict(paused=e.paused,phase=e.phase) for name,e in
+                (('practice',self.practice),('mission',self.engine),('rehearsal',self.rehearsal))}
+            return result
 
     def execution_ticket(self):
         with self.execution_request_lock:return self.execution_generation
@@ -266,7 +278,29 @@ class SimulationHTTPServer(ThreadingHTTPServer):
             if self.practice.paused:self.practice.control({'action':'resume'})
             return self.ros_notebook.start()
 
+    def _require_runtime_ready(self, engine):
+        if not self.workbench:return
+        runtime='practice' if engine is self.practice else 'rehearsal' if engine is self.rehearsal else 'mission'
+        physics=self.physics.status()
+        if not (physics.get('running') and physics.get('connected') and physics.get('runtime')==runtime):
+            raise APIError(409,'물리 엔진이 준비되지 않았습니다. 5번 경기 탭에서 코드를 적용하고 새 경기를 시작하세요.')
+        external=[r for r in engine.robots.values() if r.strategy=='external']
+        if external:
+            controller=self.workbench.controller_snapshot();deployment=self.workbench.deployment or {}
+            deployed_runtime='mission' if deployment.get('mode')=='match' else deployment.get('mode')
+            if not (controller.get('loaded') and controller.get('code_integrity') and deployed_runtime==runtime
+                    and all(r.slot==deployment.get('slot') and (runtime=='practice' or r.ready) for r in external)):
+                raise APIError(409,'참가 코드가 준비되지 않았습니다. 5번 경기 탭에서 코드를 적용하고 새 경기를 시작하세요.')
+
     def control_runtime(self, engine, body):
+        action=body.get('action')
+        if action=='prepare' and engine.phase not in ('idle','finished'):
+            raise APIError(409,'초기화한 뒤 준비하세요')
+        if self.workbench:
+            runtime='practice' if engine is self.practice else 'rehearsal' if engine is self.rehearsal else 'mission'
+            if action in ('reset','prepare') and self.physics.status().get('runtime')==runtime:
+                self.stop_execution()
+            if action in ('start','resume'):self._require_runtime_ready(engine)
         if engine is self.rehearsal:
             with engine.lock:
                 action=body.get('action')
@@ -294,7 +328,10 @@ class SimulationHTTPServer(ThreadingHTTPServer):
         if self.rehearsal_start_at is not None and time.monotonic()>=self.rehearsal_start_at:
             with self.rehearsal.lock:
                 self.rehearsal_start_at=None
-                if self.rehearsal.phase=='ready':self.rehearsal.control({'action':'start'})
+                if self.rehearsal.phase=='ready':
+                    try:self._require_runtime_ready(self.rehearsal)
+                    except APIError as exc:self.rehearsal._event('countdown_cancelled',str(exc))
+                    else:self.rehearsal.control({'action':'start'})
         for name,runtime in (('mission',self.engine),('rehearsal',self.rehearsal),('practice',self.practice)):
             try:
                 if runtime.physical_active:
