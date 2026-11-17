@@ -34,8 +34,10 @@ jobs:
           if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne '66b79057ba273c08daa03551a231995d48b8623bb1efa9f3a7c3e09792d8f1ba') { throw 'Mesa download hash mismatch' }
           & 'C:\Program Files\7-Zip\7z.exe' x $archive "-o$destination" -y
           if ($LASTEXITCODE -ne 0) { throw 'Mesa extraction failed' }
-          Get-ChildItem "$destination\x64\*.dll" | Copy-Item -Destination $env:pythonLocation -Force
-          Get-ChildItem "$destination\x64\*.dll" | Copy-Item -Destination 'training\.venv\Scripts' -Force
+          # Keep Microsoft's system WARP; do not replace it with Mesa's D3D10
+          # software driver. This is a separate condition from llvmpipe runs.
+          Get-ChildItem "$destination\x64\*.dll" | Where-Object Name -ne 'd3d10warp.dll' | Copy-Item -Destination $env:pythonLocation -Force
+          Get-ChildItem "$destination\x64\*.dll" | Where-Object Name -ne 'd3d10warp.dll' | Copy-Item -Destination 'training\.venv\Scripts' -Force
           # GLFW also enumerates pixel formats through Windows GDI. Register
           # Mesa's fallback ICD on this disposable hosted runner only.
           # https://docs.mesa3d.org/drivers/llvmpipe.html#windows
@@ -46,7 +48,7 @@ jobs:
           New-ItemProperty $icd -Name DriverVersion -Value 1 -PropertyType DWord -Force | Out-Null
           New-ItemProperty $icd -Name Flags -Value 1 -PropertyType DWord -Force | Out-Null
           New-ItemProperty $icd -Name Version -Value 2 -PropertyType DWord -Force | Out-Null
-          'GALLIUM_DRIVER=llvmpipe' | Out-File -FilePath $env:GITHUB_ENV -Append
+          'GALLIUM_DRIVER=d3d12' | Out-File -FilePath $env:GITHUB_ENV -Append
           'LIBGL_ALWAYS_SOFTWARE=1' | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Import packages and render a MuJoCo camera
         if: runner.os != 'macOS'

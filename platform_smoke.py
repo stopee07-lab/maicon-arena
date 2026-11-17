@@ -24,6 +24,8 @@ def main():
     base = f'http://127.0.0.1:{port}'
     (ROOT / 'runtime').mkdir(exist_ok=True)
     result = {'platform': platform.system(), 'architecture': platform.machine(), 'success': False}
+    result['renderer_config'] = {name: physics_environment().get(name) for name in
+        ('MUJOCO_GL', 'GALLIUM_DRIVER', 'LIBGL_ALWAYS_SOFTWARE')}
     key = None
 
     def api(path, body=None):
