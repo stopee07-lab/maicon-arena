@@ -29,7 +29,7 @@
 
 기본 경기장·로봇 코드는 같은 소스를 사용합니다. **각 OS에서 처음 설치를 따로 해야 하며 Mac의 가상환경(`training/.venv`)을 복사하면 안 됩니다.** Windows 경로와 Linux 서버 렌더링은 실행기가 구분합니다.
 
-실제 검증 범위, Linux SSH 접속, GPU·ROS·JupyterLab·녹화의 차이는 [OS별 안내](docs/platforms.md)에 있습니다. [GitHub Actions](https://github.com/stopee07-lab/maicon-arena/actions/workflows/platform-smoke.yml)에서 OS별 설치·카메라·참가 코드 이동 검사를 수행합니다. CI 통과와 팀원의 실제 그래픽 드라이버·브라우저·UGV 검증은 구분합니다.
+실제 검증 범위, Linux SSH 접속, GPU·ROS·JupyterLab·녹화의 차이는 [OS별 안내](docs/platforms.md)에 있습니다. [GitHub Actions](https://github.com/stopee07-lab/maicon-arena/actions/workflows/platform-smoke.yml)에서 Windows/Linux 설치·카메라·참가 코드 이동과 Mac 설치·import 검사를 수행합니다. CI 통과와 팀원의 실제 그래픽 드라이버·브라우저·UGV 검증은 구분합니다.
 
 ## 더 알아보기
 

@@ -1,41 +1,273 @@
 {
-  "date": "2026-11-16",
-  "mac": {
-    "installation": "reused existing runtime through MAICON_PYTHON",
-    "python": "3.14.5",
-    "mujoco": "3.17.0",
-    "torch": "2.15.0",
-    "checks": [
-      "MuJoCo 64x64 rendered image",
-      "launcher server 18488 welcome HTTP 200",
-      "physical worker 11 frames",
-      "Ctrl+C launcher exit 0 and closed listener",
-      "Jupyter 18907 start and HTTP shutdown exit 0"
-    ]
+  "date": "2026-11-17",
+  "code_commit": "016b18fffc7e973efadaa1a659254b6bd71d49e2",
+  "ci_url": "https://github.com/stopee07-lab/maicon-arena/actions/runs/43987978341",
+  "ci": {
+    "Windows": {
+      "status": "passed",
+      "renderer": "Mesa 25.3.3 GLonD3D12 with native Microsoft WARP",
+      "scope": "8.1 simulated seconds, then pause/resume/explicit stop; not a full scored match",
+      "result": {
+        "platform": "Windows",
+        "architecture": "AMD64",
+        "success": true,
+        "renderer_config": {
+          "MUJOCO_GL": null,
+          "GALLIUM_DRIVER": "d3d12",
+          "LIBGL_ALWAYS_SOFTWARE": "1"
+        },
+        "code_sha256": "a1f370378e39330d2840c39280e21a0cdc873bab15196362ae94cf1ef2185a72",
+        "model_sha256": "84ea270449b2b9dda0cf1c6d8dcbd0e850ed4398156d7337aab16fbdac0e9914",
+        "elapsed": 8.09999999999998,
+        "displacement_m": {
+          "B-1": 0.26633103493377985,
+          "B-2": 1.7778564336780263,
+          "B-3": 0.43179797687450655,
+          "R-1": 1.825193943412999,
+          "R-2": 0.6435527676741597,
+          "R-3": 0.573064317094712
+        },
+        "checks": [
+          "loaded model",
+          "physics connected",
+          "participant movement",
+          "speed selection",
+          "pause/resume",
+          "owned processes stopped"
+        ]
+      }
+    },
+    "Linux": {
+      "status": "passed",
+      "renderer": "OSMesa CPU",
+      "scope": "8.1 simulated seconds, then pause/resume/explicit stop; not a full scored match",
+      "result": {
+        "platform": "Linux",
+        "architecture": "x86_64",
+        "success": true,
+        "renderer_config": {
+          "MUJOCO_GL": "osmesa",
+          "GALLIUM_DRIVER": null,
+          "LIBGL_ALWAYS_SOFTWARE": null
+        },
+        "code_sha256": "d9900dbf380c95284251d42f7e7a9f38e87fba500696a1eb2f656a94e3424e93",
+        "model_sha256": "84ea270449b2b9dda0cf1c6d8dcbd0e850ed4398156d7337aab16fbdac0e9914",
+        "elapsed": 8.09999999999998,
+        "displacement_m": {
+          "B-1": 0.12895010905734777,
+          "B-2": 1.6426351830628614,
+          "B-3": 0.43570574276961077,
+          "R-1": 1.6639405214270648,
+          "R-2": 0.6244500711655023,
+          "R-3": 0.579431061271057
+        },
+        "checks": [
+          "loaded model",
+          "physics connected",
+          "participant movement",
+          "speed selection",
+          "pause/resume",
+          "owned processes stopped"
+        ]
+      }
+    },
+    "macOS": {
+      "status": "passed",
+      "scope": [
+        "new installation",
+        "portable launcher tests",
+        "MuJoCo Torch Ultralytics imports"
+      ],
+      "rendering": "Hosted ARM CGL unavailable; rendering not tested on hosted Mac"
+    }
   },
-  "linux": {
-    "architecture": "aarch64",
-    "image": "python:3.12-slim",
-    "image_digest": "sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b",
-    "installation": "new venv from requirements.txt, official PyTorch CPU index first",
-    "python": "3.12.16",
-    "mujoco": "3.17.0",
-    "torch": "2.15.0+cpu",
-    "checks": [
-      "11 portable tests passed",
-      "MuJoCo OSMesa 64x64 rendered image"
-    ],
-    "exit_code": 0,
-    "container_removed": true
+  "local_mac": {
+    "installation": "existing runtime, fresh source checkout",
+    "lifecycle_result": {
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "success": true,
+      "elapsed": 8.04999999999998,
+      "displacement_m": {
+        "B-1": 0.12993878046355148,
+        "B-2": 1.7117043669071088,
+        "B-3": 0.38626112507541155,
+        "R-1": 1.7516961093064356,
+        "R-2": 0.6493616954656907,
+        "R-3": 0.545212946184502
+      },
+      "code_sha256": "78db6ae94e80d8e4d5de6e6f5b91a96d9452a1ff962dd52cadaeee1057f4cd3e",
+      "model_sha256": "84ea270449b2b9dda0cf1c6d8dcbd0e850ed4398156d7337aab16fbdac0e9914",
+      "checks": [
+        "loaded model",
+        "physics connected",
+        "participant movement",
+        "speed selection",
+        "pause/resume",
+        "owned processes stopped"
+      ]
+    },
+    "dashboard_evidence": "docs/verification-dashboard-repair-20261117.md",
+    "python_tests": {
+      "run": 208,
+      "passed": 205,
+      "conditional_skips": 3
+    },
+    "node_tests": {
+      "run": 13,
+      "passed": 13
+    }
   },
   "limits": [
-    "Windows not actually run",
-    "Linux x86_64 not actually run",
-    "GitHub OS matrix added but not run",
-    "No physical robot or scoring-strategy validation implied"
+    "Windows CI uses pinned Mesa 25.3.3 GLonD3D12 with native Microsoft WARP on a disposable hosted runner; vendor GPU drivers and desktop browser not verified",
+    "Linux x86_64 CI uses OSMesa CPU rendering; no real-time or acceleration-speed guarantee",
+    "Mac hosted CI does not render cameras; local Mac rendering and match evidence are separate",
+    "Intel Mac, Windows ARM64, ROS on Windows/Linux and physical UGV not verified"
   ],
-  "failed_attempt": {
-    "file": "linux-default-pypi-aborted.log",
-    "reason": "Stopped unnecessary large CUDA dependency downloads; installer changed to CPU index and fresh retry passed"
-  }
+  "history": [
+    {
+      "date": "2026-11-16",
+      "mac": {
+        "installation": "reused existing runtime through MAICON_PYTHON",
+        "python": "3.14.5",
+        "mujoco": "3.17.0",
+        "torch": "2.15.0",
+        "checks": [
+          "MuJoCo 64x64 rendered image",
+          "launcher server 18488 welcome HTTP 200",
+          "physical worker 11 frames",
+          "Ctrl+C launcher exit 0 and closed listener",
+          "Jupyter 18907 start and HTTP shutdown exit 0"
+        ]
+      },
+      "linux": {
+        "architecture": "aarch64",
+        "image": "python:3.12-slim",
+        "image_digest": "sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b",
+        "installation": "new venv from requirements.txt, official PyTorch CPU index first",
+        "python": "3.12.16",
+        "mujoco": "3.17.0",
+        "torch": "2.15.0+cpu",
+        "checks": [
+          "11 portable tests passed",
+          "MuJoCo OSMesa 64x64 rendered image"
+        ],
+        "exit_code": 0,
+        "container_removed": true
+      },
+      "limits": [
+        "Windows not actually run",
+        "Linux x86_64 not actually run",
+        "GitHub OS matrix added but not run",
+        "No physical robot or scoring-strategy validation implied"
+      ],
+      "failed_attempt": {
+        "file": "linux-default-pypi-aborted.log",
+        "reason": "Stopped unnecessary large CUDA dependency downloads; installer changed to CPU index and fresh retry passed"
+      }
+    }
+  ],
+  "failed_attempts": [
+    {
+      "run": 43979053461,
+      "code": "f077b00",
+      "windows": "Legacy cp1252 console could not print Korean; fixed UTF-8 entry point",
+      "mac": "Hosted ARM CGL pixel format unavailable; hosted scope separated from local Mac render verification",
+      "linux": "passed full lifecycle"
+    },
+    {
+      "run": 43979385222,
+      "code": "1ab71b3",
+      "windows": "Hosted runner lacks OpenGL graphics driver",
+      "linux": "Live slow renderer triggered stale-frame permanent pause; clear old commands and await fresh frame while process alive"
+    },
+    {
+      "run": 43979983871,
+      "code": "0f75a39",
+      "windows": "Mesa 26.2.6 MSVC archive contains no WGL DLLs",
+      "linux": "Six to seven simulated seconds in 90 wall seconds; timeout without pause"
+    },
+    {
+      "run": 43980405758,
+      "code": "f23b22a",
+      "windows": "Pinned archive missing libgallium_wgl.dll",
+      "linux": "Software rendering exceeded smoke wall-time limit"
+    },
+    {
+      "run": 43980979748,
+      "code": "41b8b8c",
+      "windows": "Camera passed, code snapshot integrity rejected Windows text newline translation",
+      "linux": "passed full lifecycle"
+    },
+    {
+      "run": 43981346424,
+      "code": "cb361e4",
+      "windows": "Diagnostic detail confirmed immutable code version hash mismatch; fixed byte-preserving snapshot and regression tested LF and CRLF"
+    },
+    {
+      "run": 43981804143,
+      "code": "22657b5",
+      "windows": "Snapshot integrity fixed; full-scene physics failed 12-second connection gate, investigating worker log",
+      "linux": "passed full lifecycle",
+      "mac": "passed scoped install/import/portable checks"
+    },
+    {
+      "run": 43982193779,
+      "code": "f748950",
+      "windows": "Full-scene first-frame 12-second timeout with empty worker log; added bounded 60-second alive-worker wait, fail-fast exit reason, startup stages",
+      "linux": "passed lifecycle separately; see Actions final status"
+    },
+    {
+      "run": 43982588850,
+      "code": "b00c9f4",
+      "windows": "60-second timeout and no first worker log; simple slow-render hypothesis disproved",
+      "linux": "passed full lifecycle"
+    },
+    {
+      "run": 43983162472,
+      "code": "bbc7627",
+      "windows": "No boot line before any imports: interpreter startup blocked on inherited lifetime stdin pipe; reproduced and fixed with DEVNULL"
+    },
+    {
+      "run": 43983496997,
+      "code": "03c3b2f",
+      "windows": "Full arena, model and ready acknowledged; cleanup exposed Unix-only uid API and supervised -c child recovery; fixed portable ownership and birth-record verification"
+    },
+    {
+      "run": 43983898339,
+      "code": "38d54df",
+      "windows": "Model and match started without automatic pause; reached 7.75 simulated seconds in 300 wall seconds at effective 0.03x; expanded CI-only wall budget, retained eight-second movement check",
+      "linux": "passed full lifecycle",
+      "mac": "passed scoped installation/import/portable tests"
+    },
+    {
+      "run": 43985140262,
+      "code": "2115431",
+      "windows": "Eight simulated seconds reached, but sensor_worker died on WinError 5 while replacing status.json; participant movement assertion failed. Added bounded retry for status and camera publication; strategy AST unchanged.",
+      "linux": "passed full lifecycle"
+    },
+    {
+      "run": 43986894434,
+      "code": "6bc8fe4",
+      "windows": {
+        "condition": "Mesa 25.3.3 llvmpipe",
+        "result": "Eight simulated seconds reached without thread traceback, but no meaningful B-1 movement at 0.04x; safety freshness gates retained",
+        "elapsed": 8.1,
+        "B1_displacement_m": 2.3996937335689897e-08,
+        "code_sha256": "a1f370378e39330d2840c39280e21a0cdc873bab15196362ae94cf1ef2185a72"
+      },
+      "linux": "passed full lifecycle"
+    }
+  ],
+  "participant_io_change": {
+    "experiment_id": "windows-file-publication-20261117",
+    "reason": "Observed WinError 5 during status.json replace killed sensor_worker in Windows CI",
+    "before_sha256": "a4280e984bf567503416fc7d60693cbacdc3d752db03a59cbb5057ee81542c28",
+    "strategy_change": false,
+    "model_change": false,
+    "after_sha256": "917870f2b1d493ee92faebf332f8059944ec51ef1ea856694837e319108406db",
+    "non_io_ast_unchanged": true,
+    "supervisor_sha256": "057f61ff2deed6f1e8684814d43ad868c4c461932cebf1fdbfa8d59b1e9b2663"
+  },
+  "code_hash_note": "Windows Git checkout CRLF differs from Linux LF; byte-preserving snapshot validated. Release archives contain LF. Strategy and model unchanged by Windows publication retries."
 }
