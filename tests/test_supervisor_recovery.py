@@ -13,8 +13,11 @@ class RecoveryTests(unittest.TestCase):
    started=time.time();proc=subprocess.Popen([sys.executable,'-c',launcher,'--server','http://fixture','--output',str(out),'--weights',str(weights)],stdin=subprocess.DEVNULL)
    (out/'launch.json').write_text(json.dumps(dict(output_dir=str(out),deployment_id=dep.name,code_path=str(script),pid=999999,started_at=started)))
    born=psutil.Process(proc.pid).create_time()
+   owner_name=psutil.Process().username()
    try:
-    with patch.object(psutil.Process,'uids',side_effect=AttributeError('Windows has no uids'),create=True):
+    # On POSIX psutil.username itself uses uids internally. Model Windows'
+    # username API independently while rejecting direct Unix-only calls.
+    with patch.object(psutil.Process,'username',return_value=owner_name), patch.object(psutil.Process,'uids',side_effect=AttributeError('Windows has no uids'),create=True):
      event=dict(event='child_spawned',child_pid=proc.pid,child_create_time=born-10,entrypoint=str(script))
      (out/'supervisor.jsonl').write_text(json.dumps(event)+'\n')
      self.assertEqual(stop_owned_controllers(root,'http://fixture',sys.executable)['stopped'],[])

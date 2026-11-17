@@ -60,15 +60,23 @@ def main():
             origins = {r['slot']: (r['x'], r['y']) for r in initial['robots']}
             # Software-rendered CI cameras can run far below real time.
             # Keep the same eight simulated seconds and movement assertion.
-            deadline = time.monotonic() + 300
+            # Windows llvmpipe measured 7.75 simulated seconds in 300 wall
+            # seconds. This is an installation/lifecycle check, not a real-time
+            # performance promise; retain all eight simulated seconds.
+            movement_timeout = 600 if os.name == 'nt' else 300
+            deadline = time.monotonic() + movement_timeout
+            next_progress = time.monotonic() + 30
             while time.monotonic() < deadline:
                 state = api('/api/admin/state')
                 assert not state['paused'], 'Unexpected automatic pause'
                 if state['elapsed'] - initial['elapsed'] >= 8:
                     break
+                if time.monotonic() >= next_progress:
+                    print(json.dumps({'platform': platform.system(), 'elapsed': state['elapsed'], 'paused': state['paused']}), flush=True)
+                    next_progress = time.monotonic() + 30
                 time.sleep(.3)
             else:
-                raise RuntimeError('Match did not reach eight simulated seconds within 300 wall seconds')
+                raise RuntimeError(f'Match did not reach eight simulated seconds within {movement_timeout} wall seconds')
             distances = {r['slot']: ((r['x']-origins[r['slot']][0])**2 +
                 (r['y']-origins[r['slot']][1])**2)**.5 for r in state['robots']}
             assert distances['B-1'] > .03, 'Participant robot did not move'
@@ -78,6 +86,11 @@ def main():
             paused = api('/api/admin/state')['elapsed']
             time.sleep(.5)
             assert api('/api/admin/state')['elapsed'] == paused
+            deadline = time.monotonic() + 60
+            while not api('/api/physics/status')['connected']:
+                if time.monotonic() >= deadline:
+                    raise RuntimeError('No fresh physics frame before resume')
+                time.sleep(.1)
             api('/api/admin/control', {'action': 'resume'})
             deadline = time.monotonic() + 60
             while time.monotonic() < deadline:
