@@ -32,11 +32,23 @@ LIMITATIONS=['Public-plan spawn and sector calibration is approximate; no GPS.',
     'Six supplied example-photo textures do not prove real-competition generalization.']
 
 
+def replace_published_file(source,destination):
+    """Bounded retry for Windows readers briefly holding a published file."""
+    for attempt in range(10):
+        try:
+            os.replace(source,destination)
+            return
+        except PermissionError as exc:
+            if getattr(exc,'winerror',None) not in (5,32,33) or attempt==9:
+                raise
+            time.sleep(.02)
+
+
 def atomic_json(path,data):
     path=Path(path);fd,tmp=tempfile.mkstemp(prefix='.'+path.name,dir=path.parent)
     try:
-        with os.fdopen(fd,'w') as f:json.dump(data,f,ensure_ascii=False,allow_nan=False)
-        os.replace(tmp,path)
+        with os.fdopen(fd,'w',encoding='utf-8') as f:json.dump(data,f,ensure_ascii=False,allow_nan=False)
+        replace_published_file(tmp,path)
     finally:
         if os.path.exists(tmp):os.unlink(tmp)
 
@@ -326,7 +338,7 @@ class LearnedTeam:
                             if location:self.observations.add(detection['type'],*location,detection['confidence'],seq)
                         self.loaded=True;self.frame_at=time.monotonic()
                         frame_name=f'frame-{seq:08d}.jpg';(self.output/frame_name).write_bytes(jpeg)
-                        temp=self.output/'.frame.jpg';temp.write_bytes(jpeg);os.replace(temp,self.output/'frame.jpg')
+                        temp=self.output/'.frame.jpg';temp.write_bytes(jpeg);replace_published_file(temp,self.output/'frame.jpg')
                         packet={'frame_seq':seq,'image_sha256':image_hash,'weights_sha256':self.weights_hash,'predictions':detections,
                             'frame_path':frame_name,'received_at':time.time(),'inference_seconds':time.monotonic()-started,'inference_ms':(time.monotonic()-started)*1000,'captured_at':headers.get('X-Captured-At'),
                             'camera_source':headers.get('X-Camera',headers.get('X-Camera-Backend',headers.get('X-Physics-Backend','server own sensor')))}
@@ -405,7 +417,7 @@ class LearnedTeam:
                             self.status['drone']={'frames':self.drone.frames if self.drone else 0,'captured_at':captured,'age_seconds':age,
                                 'frame_interval':interval,'components':components,'source_camera':headers.get('X-Camera'),
                                 'stale':age is None or age>max(2.,interval*2),'method':'HSV observation heuristic, not a trained drone detector'}
-                            temp=self.output/'.drone.jpg';temp.write_bytes(jpeg);os.replace(temp,self.output/'drone.jpg')
+                            temp=self.output/'.drone.jpg';temp.write_bytes(jpeg);replace_published_file(temp,self.output/'drone.jpg')
                     except (ApiError,ValueError) as exc:
                         with self.lock:self.status['drone']['error']=str(exc)
             except ApiError as exc:

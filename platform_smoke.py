@@ -56,6 +56,8 @@ def main():
                 'slot': 'B-1', 'model_id': models[0]['id']})
             assert launch['started'] and launch['controller']['loaded']
             assert launch['controller']['code_integrity'] and launch['physics']['connected']
+            result.update(code_sha256=launch['deployment']['code_sha256'],
+                model_sha256=launch['deployment']['weights_sha256'])
             initial = api('/api/admin/state')
             origins = {r['slot']: (r['x'], r['y']) for r in initial['robots']}
             # Software-rendered CI cameras can run far below real time.
@@ -73,12 +75,16 @@ def main():
                     break
                 if time.monotonic() >= next_progress:
                     print(json.dumps({'platform': platform.system(), 'elapsed': state['elapsed'], 'paused': state['paused']}), flush=True)
+                    for log_path in (ROOT / 'data/workbench/controllers').glob('*/worker.log'):
+                        if 'Traceback (most recent call last)' in log_path.read_text(encoding='utf-8', errors='replace'):
+                            raise RuntimeError('Participant thread failed; see preserved log')
                     next_progress = time.monotonic() + 30
                 time.sleep(.3)
             else:
                 raise RuntimeError(f'Match did not reach eight simulated seconds within {movement_timeout} wall seconds')
             distances = {r['slot']: ((r['x']-origins[r['slot']][0])**2 +
                 (r['y']-origins[r['slot']][1])**2)**.5 for r in state['robots']}
+            result.update(elapsed=state['elapsed'], displacement_m=distances)
             assert distances['B-1'] > .03, 'Participant robot did not move'
             api('/api/admin/control', {'action': 'speed', 'value': 5})
             assert api('/api/admin/state')['speed'] == 5
